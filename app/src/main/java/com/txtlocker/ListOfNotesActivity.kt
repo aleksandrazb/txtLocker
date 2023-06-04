@@ -11,19 +11,19 @@ import android.widget.BaseAdapter
 import android.widget.ListView
 import android.widget.TextView
 import com.txtlocker.Models.Note
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import java.io.IOException
 
 class ListOfNotesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
-        //TODO("Get array of saved notes on account")
-        val arrayNotes = arrayListOf<Note>(
-            Note("Title1", "Note1"),
-            Note("Title2", "Note2"),
-            Note("Title3", "Note3"),
-            Note("Title4", "Note4")
-        )
+        //TODO("Get array of saved notes")
+
+        val arrayNotes = loadNotesFromFile("storage.txt")
 
         val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
         listViewNotes.adapter = ListAdapter(this, arrayNotes)
@@ -67,6 +67,38 @@ class ListOfNotesActivity : AppCompatActivity() {
             val positionRowNoteShort = row.findViewById<TextView>(R.id.textNoteShort)
             positionRowNoteShort.text = notes[position].note
             return row
+        }
+    }
+
+    private fun loadNotesFromFile(fileName: String): ArrayList<Note> {
+        val notes = arrayListOf<Note>()
+
+        val fileDirectory = applicationContext.filesDir
+        val file = File(fileDirectory, fileName)
+
+        try {
+            val lines = file.bufferedReader().readLines()
+
+            var currentTitle: String? = null
+            var currentContent: String? = null
+
+            for (line in lines) {
+                if (currentTitle == null) {
+                    currentTitle = line
+                }
+                else if (currentContent == null) {
+                    currentContent = line
+                    notes.add(Note(currentTitle, currentContent))
+                    currentTitle = null
+                    currentContent = null
+                }
+            }
+            return notes
+        }
+        catch (e: IOException) {
+            e.printStackTrace()
+            notes.add(Note("Error", "IOException"))
+            return notes
         }
     }
 
