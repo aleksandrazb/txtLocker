@@ -21,10 +21,8 @@ class ListOfNotesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
-        //TODO("Get array of saved notes")
-
+        //Get array of saved notes
         val arrayNotes = loadNotesFromFile("storage.txt")
-
         val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
         listViewNotes.adapter = ListAdapter(this, arrayNotes)
 
@@ -80,17 +78,17 @@ class ListOfNotesActivity : AppCompatActivity() {
             val lines = file.bufferedReader().readLines()
 
             var currentTitle: String? = null
-            var currentContent: String? = null
+            var currentNote: String? = null
 
             for (line in lines) {
                 if (currentTitle == null) {
                     currentTitle = line
                 }
-                else if (currentContent == null) {
-                    currentContent = line
-                    notes.add(Note(currentTitle, currentContent))
+                else if (currentNote == null) {
+                    currentNote = line
+                    notes.add(Note(currentTitle, currentNote))
                     currentTitle = null
-                    currentContent = null
+                    currentNote = null
                 }
             }
             return notes
