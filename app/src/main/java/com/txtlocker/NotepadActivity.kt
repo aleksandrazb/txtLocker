@@ -7,7 +7,6 @@ import android.widget.Button
 import android.widget.EditText
 import com.google.gson.Gson
 import com.txtlocker.Models.Note
-import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
@@ -18,7 +17,7 @@ class NotepadActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
     private lateinit var notes: ArrayList<Note>
     private lateinit var noteTitle: EditText
-    private lateinit var noteNote: EditText
+    private lateinit var noteContent: EditText
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_notepad)
@@ -31,20 +30,20 @@ class NotepadActivity : AppCompatActivity() {
 
         // Initialize the EditText fields
         noteTitle = findViewById(R.id.editTextTitle)
-        noteNote = findViewById(R.id.inputNotes) //in activity_notepad.xml it can be found under R.id.textInputNotes
+        //TODO: Change R.id.textInputNotes to R.id.editTextContent
+        noteContent = findViewById(R.id.inputNotes) //in activity_notepad.xml it can be found under R.id.textInputNotes
 
         // Set the title and content of the note in the EditText fields
         noteTitle.setText(note.title)
-        noteNote.setText(note.note)
+        noteContent.setText(note.content)
 
         val buttonSave = findViewById<Button>(R.id.buttonSave)
         val buttonDelete = findViewById<Button>(R.id.buttonDelete)
         val buttonClose = findViewById<Button>(R.id.buttonClose)
 
         buttonSave.setOnClickListener {
-            //TODO("Save note action")
             note.title = noteTitle.text.toString()
-            note.note = noteNote.text.toString()
+            note.content = noteContent.text.toString()
 
             notes[position] = note
 
@@ -52,14 +51,16 @@ class NotepadActivity : AppCompatActivity() {
         }
 
         buttonDelete.setOnClickListener {
-            //TODO("Delete note action")
+            notes.removeAt(position)
+
+            saveNotesToFile(file, notes)
+
             val intent = Intent(this, ListOfNotesActivity::class.java)
             startActivity(intent)
             finish()
         }
 
         buttonClose.setOnClickListener {
-            //TODO("Close note action")
             val intent = Intent(this, ListOfNotesActivity::class.java)
             startActivity(intent)
             finish()
@@ -71,18 +72,6 @@ class NotepadActivity : AppCompatActivity() {
 
         try {
             val file = File(applicationContext.filesDir, fileName)
-
-            //val fileWriter = FileWriter(file)
-            //val bufferedWriter = BufferedWriter(fileWriter)
-            //for (note in notes) {
-            //    bufferedWriter.write(note.title)
-            //    bufferedWriter.newLine()
-            //    bufferedWriter.write(note.note)
-            //    bufferedWriter.newLine()
-            //}
-            //bufferedWriter.close()
-
-            //fileWriter.close()
 
             val gson = Gson()
             val json = gson.toJson(notes)

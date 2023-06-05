@@ -36,22 +36,19 @@ class MainActivity : AppCompatActivity() {
         if (pin == "1234") {
             Toast.makeText(applicationContext, "Unlocked", Toast.LENGTH_LONG).show()
             finish()
-            //------------------------------------
-            val fileName = "storage.json" // Provide the desired file name
-            val file = File(applicationContext.filesDir, fileName) // Create a File object
+
+            val fileName = "storage.json"
+            val file = File(applicationContext.filesDir, fileName)
 
             if(!file.exists()) {
                 try {
-                    file.createNewFile()
-                    //BufferedWriter(FileWriter(file)).use { writer ->
-                    //    writer.write("Title1\nContent1\nTitle2\nContent2\n") // Write the content to the file
-                    //}
                     val notes = arrayListOf<Note>(
                         Note("ExampleTitle1", "ExampleNote1"),
                         Note("ExampleTitle2", "ExampleNote2"),
                         Note("ExampleTitle3", "ExampleNote3"),
                         Note("ExampleTitle4", "ExampleNote4")
                     )
+                    file.createNewFile()
                     val gson = Gson()
                     val json = gson.toJson(notes)
 
@@ -59,16 +56,18 @@ class MainActivity : AppCompatActivity() {
                         val fileWriter = FileWriter(file)
                         fileWriter.write(json)
                         fileWriter.close()
-                    } catch (e: IOException) {
+                    }
+                    catch (e: IOException) {
                         e.printStackTrace()
                     }
                     // File content saved successfully
-                } catch (e: IOException) {
+                }
+                catch (e: IOException) {
                     // Error occurred while saving the file
                     e.printStackTrace()
                 }
             }
-            //-------------------------------------
+
             val intent = Intent(this, ListOfNotesActivity::class.java)
             startActivity(intent)
         }

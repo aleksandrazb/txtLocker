@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,6 @@ import android.widget.TextView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.txtlocker.Models.Note
-import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
@@ -26,14 +24,13 @@ class ListOfNotesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_list_of_notes)
 
         //Get array of saved notes
+        ///TODO: Get filename from previous activity
         val file = "storage.json"
+
         val arrayNotes = loadNotesFromFile(file)
-        for (note in arrayNotes) {
-            println("Title: ${note.title}")
-            println("Note: ${note.note}")
-            println()
-        }
         val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
+
+        //Create a view of list of notes to choose
         listViewNotes.adapter = ListAdapter(this, arrayNotes)
 
         listViewNotes.setOnItemClickListener {
@@ -75,54 +72,30 @@ class ListOfNotesActivity : AppCompatActivity() {
             val positionRowNoteTitle = row.findViewById<TextView>(R.id.textNoteTitle)
             positionRowNoteTitle.text = notes[position].title
             val positionRowNoteShort = row.findViewById<TextView>(R.id.textNoteShort)
-            positionRowNoteShort.text = notes[position].note
+            positionRowNoteShort.text = notes[position].content
             return row
         }
     }
 
     private fun loadNotesFromFile(fileName: String): ArrayList<Note> {
-        //val notes = arrayListOf<Note>()
         var notes: ArrayList<Note> = ArrayList()
         val fileDirectory = applicationContext.filesDir
         val file = File(fileDirectory, fileName)
 
-        /*try {
-            val lines = file.bufferedReader().readLines()
-
-            var currentTitle: String? = null
-            var currentNote: String? = null
-
-            for (line in lines) {
-                if (currentTitle == null) {
-                    currentTitle = line
-                }
-                else if (currentNote == null) {
-                    currentNote = line
-                    notes.add(Note(currentTitle, currentNote))
-                    currentTitle = null
-                    currentNote = null
-                }
-            }
-            return notes
-        }
-        catch (e: IOException) {
-            e.printStackTrace()
-            notes.add(Note("Error", "IOException"))
-            return notes
-        }*/
         val gson = Gson()
 
-        try {
+        return try {
             val fileReader = FileReader(file)
 
             val type: Type = object : TypeToken<ArrayList<Note>>() {}.type
             notes = gson.fromJson(fileReader, type)
 
             fileReader.close()
-            return notes
-        } catch (e: IOException) {
+            notes
+        }
+        catch (e: IOException) {
             e.printStackTrace()
-            return notes
+            notes
         }
     }
 
