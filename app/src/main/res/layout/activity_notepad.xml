@@ -47,7 +47,8 @@
         android:layout_marginEnd="10dp"
         android:text="@string/save"
         app:layout_constraintEnd_toStartOf="@+id/buttonClose"
-        app:layout_constraintTop_toBottomOf="@+id/textInputNotes" />
+        app:layout_constraintTop_toBottomOf="@+id/textInputNotes"
+        app:rippleColor="@color/luminous_green" />
 
     <Button
         android:id="@+id/buttonDelete"
@@ -57,7 +58,8 @@
         android:layout_marginTop="40dp"
         android:text="@string/delete"
         app:layout_constraintStart_toEndOf="@+id/buttonClose"
-        app:layout_constraintTop_toBottomOf="@+id/textInputNotes" />
+        app:layout_constraintTop_toBottomOf="@+id/textInputNotes"
+        app:rippleColor="@color/luminous_green" />
 
     <Button
         android:id="@+id/buttonClose"
@@ -67,7 +69,8 @@
         android:text="@string/close"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputNotes" />
+        app:layout_constraintTop_toBottomOf="@+id/textInputNotes"
+        app:rippleColor="@color/luminous_green" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

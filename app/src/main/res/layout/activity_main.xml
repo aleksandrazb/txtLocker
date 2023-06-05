@@ -54,7 +54,8 @@
         android:text="@string/submit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPin" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextPin"
+        app:rippleColor="@color/luminous_green" />
 
     <Button
         android:id="@+id/buttonResetApp"
@@ -65,5 +66,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSubmit" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonSubmit"
+        app:rippleColor="@color/luminous_green" />
 </androidx.constraintlayout.widget.ConstraintLayout>

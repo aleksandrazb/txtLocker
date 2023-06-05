@@ -14,7 +14,8 @@
         android:layout_marginTop="10dp"
         android:text="@string/new_note"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:rippleColor="@color/luminous_green" />
 
     <Button
         android:id="@+id/buttonLogout"
@@ -24,7 +25,8 @@
         android:layout_marginEnd="10dp"
         android:text="@string/lock_app"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:rippleColor="@color/luminous_green" />
 
     <ListView
         android:id="@+id/listViewNotes"
