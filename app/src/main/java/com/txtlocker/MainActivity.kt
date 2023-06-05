@@ -68,8 +68,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            val intent = Intent(this, ListOfNotesActivity::class.java)
+            //val intent = Intent(this, ListOfNotesActivity::class.java)
+            //startActivity(intent)
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", 0)
+                it.putExtra("FILE", "storage.json")
+            }
             startActivity(intent)
+            finish()
         }
         else {
             Toast.makeText(applicationContext, "Incorrect PIN", Toast.LENGTH_LONG).show()

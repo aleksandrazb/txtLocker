@@ -48,6 +48,13 @@ class NotepadActivity : AppCompatActivity() {
             notes[position] = note
 
             saveNotesToFile(file, notes)
+
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", position)
+                it.putExtra("FILE", file)
+            }
+            startActivity(intent)
+            finish()
         }
 
         buttonDelete.setOnClickListener {
@@ -55,13 +62,19 @@ class NotepadActivity : AppCompatActivity() {
 
             saveNotesToFile(file, notes)
 
-            val intent = Intent(this, ListOfNotesActivity::class.java)
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", position-1)
+                it.putExtra("FILE", file)
+            }
             startActivity(intent)
             finish()
         }
 
         buttonClose.setOnClickListener {
-            val intent = Intent(this, ListOfNotesActivity::class.java)
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", position)
+                it.putExtra("FILE", file)
+            }
             startActivity(intent)
             finish()
         }
