@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.DragEvent
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -44,6 +45,12 @@ class ListOfNotesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
+        //TODO:Get filename from previous activity (DONE?)
+        file = intent.getSerializableExtra("FILE") as String
+
+        val notes = loadNotesFromFile(file)
+        val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
+
         //----------------------------------------------------------------------------
         //TODO:Create navigation menu for directories
         //val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
@@ -51,6 +58,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigation_view)
         toolbar = findViewById(R.id.toolbar)
+        toolbar.title = file.dropLast(5)
 
         setSupportActionBar(toolbar);
         val toggle = ActionBarDrawerToggle(
@@ -58,37 +66,25 @@ class ListOfNotesActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        navigationView.setNavigationItemSelectedListener{
-            when(it.itemId){
-                R.id.item -> Toast.makeText(applicationContext, "clicked", Toast.LENGTH_LONG).show()
+        var jsonFiles = populateNavigationMenu()
+
+        val menu = navigationView.menu
+
+        for (i in 0 until menu.size()) {
+            val menuItem = menu.getItem(i)
+            val itemName = menuItem.title.toString()
+            menuItem.setOnMenuItemClickListener {
+                runItem(itemName)
+                drawerLayout.closeDrawer(GravityCompat.START)
+                true
             }
-            drawerLayout.closeDrawer(GravityCompat.START)
-            true
         }
 
-        /*toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true) //DrawerToggle may not show up because NavigationIcon is not visible. You may need to call actionbar.setDisplayHomeAsUpEnabled(true);
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_menu_24)
-        //This is not working, no button to open menu
-        navigationView.setNavigationItemSelectedListener{
-            when(it.itemId){
-                R.id.item -> Toast.makeText(applicationContext, "clicked", Toast.LENGTH_LONG).show()
-            }
-            true
-        }*/
-        //----------------------------------------------------------------------------
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
 
         //Get array of saved notes
-        //TODO:Get filename from previous activity (DONE?)
-        file = intent.getSerializableExtra("FILE") as String
 
-        val notes = loadNotesFromFile(file)
-        val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
 
 
         //Create a view of list of notes to choose
@@ -112,6 +108,52 @@ class ListOfNotesActivity : AppCompatActivity() {
 
         }
 
+        //TODO:Create add a new directory function
+        /*val buttonNewDirectory = findViewById<Button>(R.id.buttonNewDirectory)
+        buttonNewDirectory.setOnClickListener {
+            val countDirectories = jsonFiles?.size ?: 0
+            Toast.makeText(applicationContext, "Creating directory $countDirectories", Toast.LENGTH_LONG).show()
+            finish()
+
+            val fileName = "$countDirectories.json"
+            val file = File(applicationContext.filesDir, fileName)
+
+            if(!file.exists()) {
+                try {
+                    val notes = arrayListOf<Note>(
+                        Note("ExampleTitle1", "ExampleNote1"),
+                        Note("ExampleTitle2", "ExampleNote2"),
+                        Note("ExampleTitle3", "ExampleNote3"),
+                        Note("ExampleTitle4", "ExampleNote4")
+                    )
+                    file.createNewFile()
+                    val gson = Gson()
+                    val json = gson.toJson(notes)
+
+                    try {
+                        val fileWriter = FileWriter(file)
+                        fileWriter.write(json)
+                        fileWriter.close()
+                    }
+                    catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                    // File content saved successfully
+                }
+                catch (e: IOException) {
+                    // Error occurred while saving the file
+                    e.printStackTrace()
+                }
+            }
+
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", 0)
+                it.putExtra("FILE", "$countDirectories.json")
+            }
+            startActivity(intent)
+            finish()
+        }
+
         listViewNotes.setOnItemClickListener {
                 parent, view, position, id ->
 
@@ -122,7 +164,7 @@ class ListOfNotesActivity : AppCompatActivity() {
             }
             startActivity(intent)
             finish()
-        }
+        }*/
 
         //----------------------------------------------------
         //TODO:Create drag&drop item order change
@@ -204,12 +246,39 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
     }
 
-    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    private fun populateNavigationMenu(): Array<out File>? {
+        // Retrieve the app's directory
+        val directory = applicationContext.filesDir
 
-        if (toggle.onOptionsItemSelected(item)){
-            return true
+        // Retrieve the JSON files in the directory
+        val jsonFiles = directory.listFiles { _, name -> name.endsWith(".json") }
+
+        // Retrieve the reference to the navigation menu
+        val menu = navigationView.menu
+
+        // Clear existing menu items
+        menu.clear()
+
+        // Add menu items for each JSON file
+        jsonFiles?.forEachIndexed { index, file ->
+            val fileName = file.nameWithoutExtension
+            val menuItem = menu.add(fileName)
+            menuItem.title = fileName // Set your own icon
         }
+        return jsonFiles
+    }
 
-        return super.onOptionsItemSelected(item)
-    }*/
+    private fun runItem(name: String) {
+
+        if (name != file.dropLast(5)) {
+            Toast.makeText(applicationContext, name, Toast.LENGTH_LONG).show()
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", 0)
+                it.putExtra("FILE", "$name.json")
+            }
+            startActivity(intent)
+            finish()
+        }
+    }
+
 }
