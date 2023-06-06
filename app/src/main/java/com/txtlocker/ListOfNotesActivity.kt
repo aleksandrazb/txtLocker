@@ -8,13 +8,18 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.DragEvent
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.txtlocker.Models.Note
@@ -28,16 +33,36 @@ import kotlin.properties.Delegates
 class ListOfNotesActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
     private lateinit var file: String
+    private lateinit var toggle: ActionBarDrawerToggle
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
+        //----------------------------------------------------------------------------
+        //TODO:Create navigation menu for directories
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
+        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+
+        toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true) //DrawerToggle may not show up because NavigationIcon is not visible. You may need to call actionbar.setDisplayHomeAsUpEnabled(true);
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.baseline_menu_24)
+        //This is not working, no button to open menu
+        navigationView.setNavigationItemSelectedListener{
+            when(it.itemId){
+                R.id.item -> Toast.makeText(applicationContext, "clicked", Toast.LENGTH_LONG).show()
+            }
+            true
+        }
+        //----------------------------------------------------------------------------
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
 
         //Get array of saved notes
-        //TODO:Get filename from previous activity
+        //TODO:Get filename from previous activity (DONE?)
         file = intent.getSerializableExtra("FILE") as String
 
         val notes = loadNotesFromFile(file)
@@ -157,4 +182,12 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        if (toggle.onOptionsItemSelected(item)){
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 }
