@@ -8,6 +8,9 @@
     tools:context=".ListOfNotesActivity"
     android:id="@+id/drawerLayout">
 
+    <include layout="@layout/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -19,18 +22,16 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="@string/new_note"
+            app:layout_constraintBottom_toTopOf="@+id/listViewNotes"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:rippleColor="@color/luminous_green" />
 
         <ListView
             android:id="@+id/listViewNotes"
-            android:layout_width="409dp"
-            android:layout_height="671dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonNewNote" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="60dp"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView

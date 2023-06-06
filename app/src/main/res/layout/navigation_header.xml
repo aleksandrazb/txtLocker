@@ -10,7 +10,7 @@
         android:id="@+id/buttonExitApp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/exit_app"
         android:textColor="@color/burgundy_red"
         app:rippleColor="@color/burgundy_red" />
@@ -19,7 +19,7 @@
         android:id="@+id/buttonNewDirectory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/new_directory"
         app:rippleColor="@color/luminous_green" />
 

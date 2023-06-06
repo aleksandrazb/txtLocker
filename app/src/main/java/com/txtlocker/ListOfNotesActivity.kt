@@ -16,8 +16,10 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.Toolbar
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
@@ -33,7 +35,10 @@ import kotlin.properties.Delegates
 class ListOfNotesActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
     private lateinit var file: String
-    private lateinit var toggle: ActionBarDrawerToggle
+    //private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navigationView: com.google.android.material.navigation.NavigationView
+    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +46,27 @@ class ListOfNotesActivity : AppCompatActivity() {
 
         //----------------------------------------------------------------------------
         //TODO:Create navigation menu for directories
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
-        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        //val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
+        //val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        drawerLayout = findViewById(R.id.drawerLayout)
+        navigationView = findViewById(R.id.navigation_view)
+        toolbar = findViewById(R.id.toolbar)
 
-        toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
+        setSupportActionBar(toolbar);
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.open, R.string.close)
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        navigationView.setNavigationItemSelectedListener{
+            when(it.itemId){
+                R.id.item -> Toast.makeText(applicationContext, "clicked", Toast.LENGTH_LONG).show()
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
+        }
+
+        /*toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -56,7 +78,7 @@ class ListOfNotesActivity : AppCompatActivity() {
                 R.id.item -> Toast.makeText(applicationContext, "clicked", Toast.LENGTH_LONG).show()
             }
             true
-        }
+        }*/
         //----------------------------------------------------------------------------
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
@@ -182,12 +204,12 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         if (toggle.onOptionsItemSelected(item)){
             return true
         }
 
         return super.onOptionsItemSelected(item)
-    }
+    }*/
 }

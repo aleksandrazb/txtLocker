@@ -6,48 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".NotepadActivity">
 
-    <EditText
-        android:id="@+id/editTextTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:ems="10"
-        android:hint="@string/title"
-        android:text=""
-        android:inputType="textPersonName"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputNotes"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="50dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTitle">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputNotes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/note_text_hint"
-            android:text="" />
-    </com.google.android.material.textfield.TextInputLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/view"/>
 
     <Button
         android:id="@+id/buttonSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:text="@string/save"
-        app:layout_constraintEnd_toStartOf="@+id/buttonClose"
-        app:layout_constraintTop_toBottomOf="@+id/textInputNotes"
+        app:layout_constraintTop_toTopOf="@id/view"
+        app:layout_constraintRight_toLeftOf="@id/buttonClose"
         app:rippleColor="@color/luminous_green" />
 
     <Button
@@ -55,22 +30,61 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="10dp"
         android:text="@string/delete"
-        app:layout_constraintStart_toEndOf="@+id/buttonClose"
-        app:layout_constraintTop_toBottomOf="@+id/textInputNotes"
+        app:layout_constraintTop_toTopOf="@id/view"
+        app:layout_constraintLeft_toLeftOf="@id/view"
         app:rippleColor="@color/luminous_green" />
 
     <Button
         android:id="@+id/buttonClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
         android:text="@string/close"
+        app:layout_constraintTop_toTopOf="@id/view"
+        app:layout_constraintRight_toRightOf="@id/view"
+        app:rippleColor="@color/luminous_green" />
+
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:hint="@string/title"
+        android:inputType="textPersonName"
+        android:text=""
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputNotes"
-        app:rippleColor="@color/luminous_green" />
+        app:layout_constraintTop_toBottomOf="@+id/view" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputNotes"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        app:layout_constraintTop_toBottomOf="@id/editTextTitle"
+        android:scrollbarTrackVertical="@id/textInputNotes">
+
+        <EditText
+            android:id="@+id/inputNotes"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="start|top"
+            android:hint="@string/note_text_hint"
+            android:inputType="textMultiLine"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="vertical" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
