@@ -5,10 +5,11 @@
     <string name="submit">Submit</string>
     <string name="reset_app">Reset application</string>
     <string name="new_note">New note</string>
-    <string name="lock_app">Lock app</string>
+    <string name="exit_app">Exit</string>
     <string name="title">Title</string>
     <string name="note_text_hint">Put some text here</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="close">Close</string>
+    <string name="new_directory">New directory</string>
 </resources>

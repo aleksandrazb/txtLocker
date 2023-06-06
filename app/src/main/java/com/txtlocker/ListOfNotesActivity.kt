@@ -1,12 +1,10 @@
 package com.txtlocker
 
-import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +12,11 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toolbar
 import androidx.annotation.RequiresApi
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.txtlocker.Models.Note
@@ -33,11 +35,16 @@ class ListOfNotesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
+        //---------------------------------------------------------------
+        //TODO:Create a menu with directories
+
+        
+        //---------------------------------------------------------------
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
 
         //Get array of saved notes
-        //TODO:Get filename from previous activity
+        //TODO:Get filename from previous activity (DONE?)
         file = intent.getSerializableExtra("FILE") as String
 
         val notes = loadNotesFromFile(file)
