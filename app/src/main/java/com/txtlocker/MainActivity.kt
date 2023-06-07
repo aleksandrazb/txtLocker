@@ -6,12 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import com.google.gson.Gson
-import com.txtlocker.Models.Note
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
+import com.txtlocker.Methods.StorageOperation
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,43 +31,13 @@ class MainActivity : AppCompatActivity() {
         if (pin == "1234") {
             Toast.makeText(applicationContext, "Unlocked", Toast.LENGTH_LONG).show()
             finish()
+            val fileToOpen = "storage"
+            val storage = StorageOperation(applicationContext, fileToOpen)
+            storage.runCheckIfNotesStorageExist()
 
-            val fileName = "storage.json"
-            val file = File(applicationContext.filesDir, fileName)
-
-            if(!file.exists()) {
-                try {
-                    val notes = arrayListOf<Note>(
-                        Note("ExampleTitle1", "ExampleNote1"),
-                        Note("ExampleTitle2", "ExampleNote2"),
-                        Note("ExampleTitle3", "ExampleNote3"),
-                        Note("ExampleTitle4", "ExampleNote4")
-                    )
-                    file.createNewFile()
-                    val gson = Gson()
-                    val json = gson.toJson(notes)
-
-                    try {
-                        val fileWriter = FileWriter(file)
-                        fileWriter.write(json)
-                        fileWriter.close()
-                    }
-                    catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                    // File content saved successfully
-                }
-                catch (e: IOException) {
-                    // Error occurred while saving the file
-                    e.printStackTrace()
-                }
-            }
-
-            //val intent = Intent(this, ListOfNotesActivity::class.java)
-            //startActivity(intent)
             val intent = Intent(this, ListOfNotesActivity::class.java).also {
                 it.putExtra("POSITION", 0)
-                it.putExtra("FILE", "storage.json")
+                it.putExtra("FILE", fileToOpen)
             }
             startActivity(intent)
             finish()

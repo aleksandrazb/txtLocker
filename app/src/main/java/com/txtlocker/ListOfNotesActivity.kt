@@ -1,15 +1,11 @@
 package com.txtlocker
 
-import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.DragEvent
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -17,26 +13,17 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.Toolbar
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.navigation.NavigationView
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Note
-import java.io.File
-import java.io.FileReader
-import java.io.FileWriter
-import java.io.IOException
-import java.lang.reflect.Type
 import kotlin.properties.Delegates
 
 class ListOfNotesActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
-    private lateinit var file: String
-    //private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var fileToOpen: String
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: com.google.android.material.navigation.NavigationView
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
@@ -45,67 +32,32 @@ class ListOfNotesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
-        //TODO:Get filename from previous activity (DONE?)
-        file = intent.getSerializableExtra("FILE") as String
+        //Get filename from previous activity
+        this.fileToOpen = intent.getSerializableExtra("FILE") as String
 
-        val notes = loadNotesFromFile(file)
-        val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
+        val usedStorage = StorageOperation(applicationContext, fileToOpen)
 
-        //----------------------------------------------------------------------------
-        //TODO:Create navigation menu for directories
-        //val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
-        //val navigationView: NavigationView = findViewById(R.id.navigation_view)
-        drawerLayout = findViewById(R.id.drawerLayout)
-        navigationView = findViewById(R.id.navigation_view)
-        toolbar = findViewById(R.id.toolbar)
-        toolbar.title = file.dropLast(5)
-
-        setSupportActionBar(toolbar);
+        //Create navigation menu for directories
+        this.drawerLayout = findViewById(R.id.drawerLayout)
+        this.navigationView = findViewById(R.id.navigation_view)
+        this.toolbar = findViewById(R.id.toolbar)
+        this.toolbar.title = fileToOpen
+        setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, R.string.open, R.string.close)
-        drawerLayout.addDrawerListener(toggle)
+        this.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+        setupNavigationMenu(usedStorage)
 
-        var jsonFiles = populateNavigationMenu()
+        //Get notes from storage
+        val notes = usedStorage.getNotesFromFile()
 
-        val menu = navigationView.menu
-
-        for (i in 0 until menu.size()) {
-            val menuItem = menu.getItem(i)
-            val itemName = menuItem.title.toString()
-            menuItem.setOnMenuItemClickListener {
-                runItem(itemName)
-                drawerLayout.closeDrawer(GravityCompat.START)
-                true
-            }
-        }
-
+        //Load ListView with storage content
+        loadListView(notes)
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
-
-        //Get array of saved notes
-
-
-
-        //Create a view of list of notes to choose
-        listViewNotes.adapter = ListAdapter(this, notes)
-
-        position = intent.getSerializableExtra("POSITION") as Int
-        listViewNotes.setSelection(position)
-
-        //Add a new note and scroll to the last one (the new note)
         buttonNewNote.setOnClickListener {
-            notes.add(Note("New note's title", "New note"))
-            saveNotesToFile(file, notes)
-
-            val intent = Intent(this, NotepadActivity::class.java).also {
-                it.putExtra("POSITION", notes.size - 1)
-                it.putExtra("NOTES", notes)
-                it.putExtra("FILE", file)
-            }
-            startActivity(intent)
-            finish()
-
+            setupButtonNewNote(usedStorage, notes)
         }
 
         //TODO:Create add a new directory function
@@ -152,18 +104,6 @@ class ListOfNotesActivity : AppCompatActivity() {
             }
             startActivity(intent)
             finish()
-        }
-
-        listViewNotes.setOnItemClickListener {
-                parent, view, position, id ->
-
-            val intent = Intent(this, NotepadActivity::class.java).also {
-                it.putExtra("POSITION", position)
-                it.putExtra("NOTES", notes)
-                it.putExtra("FILE", file)
-            }
-            startActivity(intent)
-            finish()
         }*/
 
         //----------------------------------------------------
@@ -202,83 +142,85 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadNotesFromFile(fileName: String): ArrayList<Note> {
-        var notes: ArrayList<Note> = ArrayList()
-        val fileDirectory = applicationContext.filesDir
-        val file = File(fileDirectory, fileName)
+    private fun setupNavigationMenu(storage: StorageOperation) {
+        val storages = storage.getListOfStorages()
 
-        val gson = Gson()
+        //Retrieve the reference to the navigation menu
+        val menu = this.navigationView.menu
 
-        return try {
-            val fileReader = FileReader(file)
-
-            val type: Type = object : TypeToken<ArrayList<Note>>() {}.type
-            notes = gson.fromJson(fileReader, type)
-
-            fileReader.close()
-            notes
-        }
-        catch (e: IOException) {
-            e.printStackTrace()
-            notes
-        }
-    }
-
-    private fun saveNotesToFile(fileName: String, notes: ArrayList<Note>) {
-
-        try {
-            val file = File(applicationContext.filesDir, fileName)
-
-            val gson = Gson()
-            val json = gson.toJson(notes)
-
-            try {
-                val fileWriter = FileWriter(file)
-                fileWriter.write(json)
-                fileWriter.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-
-        }
-        catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun populateNavigationMenu(): Array<out File>? {
-        // Retrieve the app's directory
-        val directory = applicationContext.filesDir
-
-        // Retrieve the JSON files in the directory
-        val jsonFiles = directory.listFiles { _, name -> name.endsWith(".json") }
-
-        // Retrieve the reference to the navigation menu
-        val menu = navigationView.menu
-
-        // Clear existing menu items
+        //Clear existing menu items
         menu.clear()
 
-        // Add menu items for each JSON file
-        jsonFiles?.forEachIndexed { index, file ->
-            val fileName = file.nameWithoutExtension
-            val menuItem = menu.add(fileName)
-            menuItem.title = fileName // Set your own icon
+        //Add menu items for each JSON file
+        storages.forEachIndexed { index, file ->
+            val menuItem = menu.add(file)
+            menuItem.title = file // Set your own icon
         }
-        return jsonFiles
+
+        //Add function to open each directory
+        for (i in 0 until menu.size()) {
+            val menuItem = menu.getItem(i)
+            val itemName = menuItem.title.toString()
+
+            menuItem.setOnMenuItemClickListener {
+                runItem(itemName)
+                this.drawerLayout.closeDrawer(GravityCompat.START)
+                true
+            }
+        }
+
     }
 
-    private fun runItem(name: String) {
+    private fun runItem(fileToOpen: String) {
 
-        if (name != file.dropLast(5)) {
-            Toast.makeText(applicationContext, name, Toast.LENGTH_LONG).show()
+        if (this.fileToOpen != fileToOpen) {
+            Toast.makeText(applicationContext, fileToOpen, Toast.LENGTH_LONG).show()
             val intent = Intent(this, ListOfNotesActivity::class.java).also {
                 it.putExtra("POSITION", 0)
-                it.putExtra("FILE", "$name.json")
+                it.putExtra("FILE", fileToOpen)
             }
             startActivity(intent)
             finish()
         }
+
+    }
+
+    private fun loadListView(notes: ArrayList<Note>) {
+        //Create a view of list of notes to choose
+        val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
+        listViewNotes.adapter = ListAdapter(this, notes)
+
+        //Set view oon the chosen note position
+        this.position = intent.getSerializableExtra("POSITION") as Int
+        listViewNotes.setSelection(position)
+
+        //Create action of editing clicked note
+        listViewNotes.setOnItemClickListener {
+                parent, view, position, id ->
+
+            val intent = Intent(this, NotepadActivity::class.java).also {
+                it.putExtra("POSITION", position)
+                it.putExtra("NOTES", notes)
+                it.putExtra("FILE", this.fileToOpen)
+            }
+            startActivity(intent)
+            finish()
+        }
+
+    }
+
+    private fun setupButtonNewNote(storage: StorageOperation, notes: ArrayList<Note>) {
+        notes.add(Note("New note's title", "New note"))
+        storage.runSavingNotes(notes)
+
+        val intent = Intent(this, NotepadActivity::class.java).also {
+            it.putExtra("POSITION", notes.size - 1)
+            it.putExtra("NOTES", notes)
+            it.putExtra("FILE", this.fileToOpen)
+        }
+        startActivity(intent)
+        finish()
+
     }
 
 }
