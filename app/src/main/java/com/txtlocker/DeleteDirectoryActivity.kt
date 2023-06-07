@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
 import com.txtlocker.Methods.StorageOperation
@@ -36,8 +37,15 @@ class DeleteDirectoryActivity : AppCompatActivity() {
 
     }
 
-    private class ListAdapter(context: Context, val directories: ArrayList<Directory>): BaseAdapter() {
+    private class ListAdapter(context: Context,
+                              val directories: ArrayList<Directory>,
+                              private val deleteClickListener: DirectoryDeleteClickListener
+                              ): BaseAdapter() {
         private val mContext: Context = context
+
+        interface DirectoryDeleteClickListener {
+            fun onDirectoryDeleteClick(directory: Directory)
+        }
 
         //number of items on the list
         override fun getCount(): Int {
@@ -58,22 +66,29 @@ class DeleteDirectoryActivity : AppCompatActivity() {
             val row = layoutInflater.inflate(R.layout.list_row_delete_directory, viewGroup, false)
             val positionRowNoteTitle = row.findViewById<TextView>(R.id.textDirectoryName)
             positionRowNoteTitle.text = directories[position].name
+
+            val deleteButton = row.findViewById<ImageButton>(R.id.buttonDeleteDirectory)
+            deleteButton.setOnClickListener {
+                val directory = directories[position]
+                deleteClickListener.onDirectoryDeleteClick(directory)
+            }
+
             return row
         }
     }
 
     private fun loadListView(directories: ArrayList<Directory>, storage: StorageOperation) {
-        //Create a view of list of notes to choose
         val listViewNotes = findViewById<ListView>(R.id.listViewDirectories)
-        listViewNotes.adapter = DeleteDirectoryActivity.ListAdapter(this, directories)
-
-        //Create action of editing clicked note
-        listViewNotes.setOnItemClickListener {
-                parent, view, position, id ->
-
-            //TODO:Remove directory from list of files
-        }
-
+        val listAdapter = ListAdapter(this, directories, object : ListAdapter.DirectoryDeleteClickListener {
+            override fun onDirectoryDeleteClick(directory: Directory) {
+                storage.deleteDirectory(directory.name)
+                if (directory.name != getString(R.string.main_note_storage)) {
+                    directories.remove(directory)
+                }
+                (listViewNotes.adapter as ListAdapter).notifyDataSetChanged()
+            }
+        })
+        listViewNotes.adapter = listAdapter
     }
 
     private fun setupButtonBack() {

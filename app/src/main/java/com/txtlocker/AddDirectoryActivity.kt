@@ -58,7 +58,7 @@ class AddDirectoryActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Directory of this name already exist!", Toast.LENGTH_LONG).show()
         }
         else {
-            storage.createNewStorage(newFileName)
+            storage.createNewDirectory(newFileName)
             val intent = Intent(this, ListOfNotesActivity::class.java).also {
                 it.putExtra("POSITION", 0)
                 it.putExtra("FILE", newFileName)

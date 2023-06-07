@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         if (pin == "1234") {
             Toast.makeText(applicationContext, "Unlocked", Toast.LENGTH_LONG).show()
             finish()
-            val fileToOpen = "storage"
+            val fileToOpen = getString(R.string.main_note_storage)
             val storage = StorageOperation(applicationContext, fileToOpen)
             storage.runCheckIfNotesStorageExist()
 

@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.txtlocker.Models.Directory
 import com.txtlocker.Models.Note
+import com.txtlocker.R
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
@@ -18,6 +19,7 @@ class StorageOperation(private var applicationContext: Context, private var file
     private val directory = applicationContext.filesDir
     private val fileFullName = "$fileName.json"
     private val file = File(directory, fileFullName)
+    private val mainNoteStorage: String = applicationContext.getString(R.string.main_note_storage)
 
     fun getListOfStorages(): MutableList<String> {
         val jsonFiles =
@@ -54,7 +56,7 @@ class StorageOperation(private var applicationContext: Context, private var file
         saveNotesToFile(notes)
     }
 
-    fun createNewStorage(newFileName: String) {
+    fun createNewDirectory(newFileName: String) {
         val newFileFullName = "$newFileName.json"
         val file = File(directory, newFileFullName)
 
@@ -83,6 +85,24 @@ class StorageOperation(private var applicationContext: Context, private var file
             catch (e: IOException) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    fun deleteDirectory(unwantedFileName: String) {
+        val unwantedFileFullName = "$unwantedFileName.json"
+        val unwantedFile = File(directory, unwantedFileFullName)
+
+        if (unwantedFile.exists() and (unwantedFileName != mainNoteStorage)) {
+            try {
+                unwantedFile.delete()
+                Toast.makeText(applicationContext, "Directory $unwantedFileName removed", Toast.LENGTH_LONG).show()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Toast.makeText(applicationContext, "Couldn't remove $unwantedFileName directory", Toast.LENGTH_LONG).show()
+            }
+        }
+        else if (unwantedFileName.equals(mainNoteStorage)) {
+            Toast.makeText(applicationContext, "Don't remove $unwantedFileName which is base directory", Toast.LENGTH_LONG).show()
         }
     }
 
