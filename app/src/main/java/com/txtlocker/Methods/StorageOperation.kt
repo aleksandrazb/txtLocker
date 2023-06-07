@@ -54,6 +54,38 @@ class StorageOperation(private var applicationContext: Context, private var file
         saveNotesToFile(notes)
     }
 
+    fun createNewStorage(newFileName: String) {
+        val newFileFullName = "$newFileName.json"
+        val file = File(directory, newFileFullName)
+
+        if(!file.exists()) {
+            try {
+                val notes = arrayListOf<Note>(
+                    Note("ExampleTitle1", "ExampleNote1"),
+                    Note("ExampleTitle2", "ExampleNote2"),
+                    Note("ExampleTitle3", "ExampleNote3"),
+                    Note("ExampleTitle4", "ExampleNote4")
+                )
+
+                file.createNewFile()
+                val gson = Gson()
+                val json = gson.toJson(notes)
+
+                try {
+                    val fileWriter = FileWriter(file)
+                    fileWriter.write(json)
+                    fileWriter.close()
+                }
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+            catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun checkIfNotesStorageExist() {
         if(!file.exists()) {
             try {
@@ -82,6 +114,8 @@ class StorageOperation(private var applicationContext: Context, private var file
             }
         }
     }
+
+
 
     private fun loadNotesFromFile(): ArrayList<Note> {
         var notes: ArrayList<Note> = ArrayList()
