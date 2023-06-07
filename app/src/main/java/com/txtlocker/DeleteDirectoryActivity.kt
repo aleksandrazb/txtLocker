@@ -94,7 +94,7 @@ class DeleteDirectoryActivity : AppCompatActivity() {
     private fun setupButtonBack() {
         val intent = Intent(this, ListOfNotesActivity::class.java).also {
             it.putExtra("POSITION", 0)
-            it.putExtra("FILE", this.fileToOpen)
+            it.putExtra("FILE", getString(R.string.main_note_storage))
         }
         startActivity(intent)
         finish()

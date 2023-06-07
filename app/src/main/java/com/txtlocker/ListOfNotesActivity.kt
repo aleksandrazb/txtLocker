@@ -127,7 +127,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         val navigationView: NavigationView = findViewById(R.id.navigation_view)
         val headerView = navigationView.getHeaderView(0) // Get the first (and usually only) header view
 
-        //TODO:Add function to add directory
+        //Add function to add directory
         val buttonAddDirectory = headerView.findViewById<ImageButton>(R.id.buttonAddDirectory)
         buttonAddDirectory.setOnClickListener {
             val intent = Intent(this, AddDirectoryActivity::class.java).also {
@@ -145,6 +145,17 @@ class ListOfNotesActivity : AppCompatActivity() {
             val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
                 //it.putExtra("POSITION", 0)
                 it.putExtra("FILE", this.fileToOpen)
+            }
+            startActivity(intent)
+            finish()
+        }
+
+        //Add function to exit app
+        val buttonExit = headerView.findViewById<Button>(R.id.buttonExitApp)
+        buttonExit.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).also {
+                //it.putExtra("POSITION", 0)
+                //it.putExtra("FILE", this.fileToOpen)
             }
             startActivity(intent)
             finish()
