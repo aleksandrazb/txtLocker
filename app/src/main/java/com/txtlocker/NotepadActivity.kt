@@ -5,12 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import com.google.gson.Gson
 import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Note
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
 import kotlin.properties.Delegates
 
 class NotepadActivity : AppCompatActivity() {
@@ -94,6 +90,6 @@ class NotepadActivity : AppCompatActivity() {
         }
         startActivity(intent)
         finish()
-        
+
     }
 }

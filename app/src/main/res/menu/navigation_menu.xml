@@ -4,15 +4,6 @@
 
     <item
         android:title="Directories" >
-
-        <menu>
-
-            <item
-                android:id="@+id/item"
-                android:title="item" />
-
-        </menu>
-
     </item>
 
 </menu>

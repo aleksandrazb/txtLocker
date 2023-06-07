@@ -13,5 +13,7 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="new_directory">New directory</string>
+    <string name="delete_directory">Delete directory</string>
+    <string name="directories">Directories</string>
     <string name="menu">Menu</string>
 </resources>

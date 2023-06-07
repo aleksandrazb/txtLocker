@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:fontFamily="casual"
+        android:textStyle="bold"
         android:text="@string/app_name"
         android:textColor="@color/black"
         android:textSize="48sp"

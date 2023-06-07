@@ -1,10 +1,12 @@
 package com.txtlocker
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,14 +55,14 @@ class ListOfNotesActivity : AppCompatActivity() {
         val notes = usedStorage.getNotesFromFile()
 
         //Load ListView with storage content
-        loadListView(notes)
+        loadListView(notes, usedStorage)
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
         buttonNewNote.setOnClickListener {
             setupButtonNewNote(usedStorage, notes)
         }
 
-        //TODO:Create add a new directory function
+        //TODO:Add function to add directory
         /*val buttonNewDirectory = findViewById<Button>(R.id.buttonNewDirectory)
         buttonNewDirectory.setOnClickListener {
             val countDirectories = jsonFiles?.size ?: 0
@@ -107,7 +109,8 @@ class ListOfNotesActivity : AppCompatActivity() {
         }*/
 
         //----------------------------------------------------
-        //TODO:Create drag&drop item order change
+
+        //TODO:Add function to delete directory
 
     }
 
@@ -124,8 +127,8 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
 
         override fun getItem(position: Int): Any {
-            //return super.getItemViewType(position)
-            return "Test"
+            return super.getItemViewType(position)
+            //return "Test"
         }
 
         override fun getView(position: Int, convertView: View?, viewGroup: ViewGroup?): View {
@@ -185,7 +188,8 @@ class ListOfNotesActivity : AppCompatActivity() {
 
     }
 
-    private fun loadListView(notes: ArrayList<Note>) {
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun loadListView(notes: ArrayList<Note>, storage: StorageOperation) {
         //Create a view of list of notes to choose
         val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
         listViewNotes.adapter = ListAdapter(this, notes)
@@ -207,6 +211,49 @@ class ListOfNotesActivity : AppCompatActivity() {
             finish()
         }
 
+        var adapter = ListAdapter(this, notes)
+        listViewNotes.adapter = adapter
+
+        enableChangeOfOrderOfNotes(listViewNotes, notes, adapter, storage)
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun enableChangeOfOrderOfNotes(listView: ListView, notes: ArrayList<Note>, adapter: ListAdapter, storage: StorageOperation) {
+        var draggedItemIndex: Int = -1
+        listView.setOnItemLongClickListener { parent, view, position, id ->
+            draggedItemIndex = position
+            val data = ClipData.newPlainText("", "")
+            val shadowBuilder = View.DragShadowBuilder(view)
+            view.startDragAndDrop(data, shadowBuilder, view, 0)
+        }
+
+        listView.setOnDragListener { _, event ->
+            val action = event.action
+            when (action) {
+                DragEvent.ACTION_DROP -> {
+                    val draggedItem = event.localState as View
+                    val position = listView.pointToPosition(event.x.toInt(), event.y.toInt())
+
+                    if (position != ListView.INVALID_POSITION) {
+                        val droppedItemIndex = position
+                        val droppedNote = notes[draggedItemIndex]
+
+                        notes.removeAt(draggedItemIndex)
+                        notes.add(droppedItemIndex, droppedNote)
+                        adapter.notifyDataSetChanged()
+                        storage.runSavingNotes(notes)
+                    }
+
+                    draggedItem.visibility = View.VISIBLE
+                }
+                DragEvent.ACTION_DRAG_ENDED -> {
+                    val draggedItem = event.localState as View
+                    draggedItem.visibility = View.VISIBLE
+                }
+            }
+            true
+        }
     }
 
     private fun setupButtonNewNote(storage: StorageOperation, notes: ArrayList<Note>) {
