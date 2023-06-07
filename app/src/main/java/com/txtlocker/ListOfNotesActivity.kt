@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
@@ -19,6 +20,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
 import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Note
 import kotlin.properties.Delegates
@@ -61,56 +63,6 @@ class ListOfNotesActivity : AppCompatActivity() {
         buttonNewNote.setOnClickListener {
             setupButtonNewNote(usedStorage, notes)
         }
-
-        //TODO:Add function to add directory
-        /*val buttonNewDirectory = findViewById<Button>(R.id.buttonNewDirectory)
-        buttonNewDirectory.setOnClickListener {
-            val countDirectories = jsonFiles?.size ?: 0
-            Toast.makeText(applicationContext, "Creating directory $countDirectories", Toast.LENGTH_LONG).show()
-            finish()
-
-            val fileName = "$countDirectories.json"
-            val file = File(applicationContext.filesDir, fileName)
-
-            if(!file.exists()) {
-                try {
-                    val notes = arrayListOf<Note>(
-                        Note("ExampleTitle1", "ExampleNote1"),
-                        Note("ExampleTitle2", "ExampleNote2"),
-                        Note("ExampleTitle3", "ExampleNote3"),
-                        Note("ExampleTitle4", "ExampleNote4")
-                    )
-                    file.createNewFile()
-                    val gson = Gson()
-                    val json = gson.toJson(notes)
-
-                    try {
-                        val fileWriter = FileWriter(file)
-                        fileWriter.write(json)
-                        fileWriter.close()
-                    }
-                    catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                    // File content saved successfully
-                }
-                catch (e: IOException) {
-                    // Error occurred while saving the file
-                    e.printStackTrace()
-                }
-            }
-
-            val intent = Intent(this, ListOfNotesActivity::class.java).also {
-                it.putExtra("POSITION", 0)
-                it.putExtra("FILE", "$countDirectories.json")
-            }
-            startActivity(intent)
-            finish()
-        }*/
-
-        //----------------------------------------------------
-
-        //TODO:Add function to delete directory
 
     }
 
@@ -170,6 +122,32 @@ class ListOfNotesActivity : AppCompatActivity() {
                 this.drawerLayout.closeDrawer(GravityCompat.START)
                 true
             }
+        }
+
+        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        val headerView = navigationView.getHeaderView(0) // Get the first (and usually only) header view
+
+        //TODO:Add function to add directory
+        val buttonAddDirectory = headerView.findViewById<ImageButton>(R.id.buttonAddDirectory)
+        buttonAddDirectory.setOnClickListener {
+            val intent = Intent(this, AddDirectoryActivity::class.java).also {
+                //it.putExtra("POSITION", 0)
+                it.putExtra("FILE", this.fileToOpen)
+            }
+            startActivity(intent)
+            finish()
+        }
+
+        //Add function to delete directory
+
+        val buttonDeleteDirectory = headerView.findViewById<ImageButton>(R.id.buttonDeleteDirectory)
+        buttonDeleteDirectory.setOnClickListener {
+            val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
+                //it.putExtra("POSITION", 0)
+                it.putExtra("FILE", this.fileToOpen)
+            }
+            startActivity(intent)
+            finish()
         }
 
     }

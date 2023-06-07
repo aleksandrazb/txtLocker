@@ -5,6 +5,7 @@ import android.content.ContextWrapper
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.txtlocker.Models.Directory
 import com.txtlocker.Models.Note
 import java.io.File
 import java.io.FileReader
@@ -28,6 +29,17 @@ class StorageOperation(private var applicationContext: Context, private var file
             listOfStorages.add(file.nameWithoutExtension)
         }
         return listOfStorages
+    }
+
+    fun getArrayListOfStorages(): ArrayList<Directory> {
+        var arrayListOfDirectories: ArrayList<Directory> = ArrayList()
+        val jsonFiles =
+            directory.listFiles { _, name -> name.endsWith(".json") }
+
+        jsonFiles?.forEachIndexed { index, file ->
+            arrayListOfDirectories.add(Directory(file.nameWithoutExtension.toString()))
+        }
+        return arrayListOfDirectories
     }
 
     fun runCheckIfNotesStorageExist() {

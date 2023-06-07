@@ -12,6 +12,7 @@
     <string name="delete">Delete</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="back">Back</string>
     <string name="new_directory">New directory</string>
     <string name="delete_directory">Delete directory</string>
     <string name="directories">Directories</string>
