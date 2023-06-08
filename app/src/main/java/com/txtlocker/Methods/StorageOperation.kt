@@ -1,5 +1,6 @@
 package com.txtlocker.Methods
 
+import SecureOperation
 import android.content.Context
 import android.widget.Toast
 import com.google.gson.Gson
@@ -9,6 +10,7 @@ import com.txtlocker.Models.Note
 import com.txtlocker.R
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
@@ -137,11 +139,25 @@ class StorageOperation(private var applicationContext: Context, private var file
             else {
                 Toast.makeText(applicationContext, "Can't remove $storage", Toast.LENGTH_LONG).show()
             }
+
+            val storageIVFile = File(directory, "$storage.iv.txt")
+            if (storageIVFile.exists()) {
+                try {
+                    storageIVFile.delete()
+                    Toast.makeText(applicationContext, "Directory $storage removed", Toast.LENGTH_LONG).show()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    Toast.makeText(applicationContext, "Couldn't remove $storage directory", Toast.LENGTH_LONG).show()
+                }
+            }
+            else {
+                Toast.makeText(applicationContext, "Can't remove $storage", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
     fun saveByteArrayToFile(fileName: String, data: ByteArray) {
-        val newFileFullName = fileName
+        /*val newFileFullName = fileName
         val file = File(directory, newFileFullName)
 
         if(!file.exists()) {
@@ -160,11 +176,27 @@ class StorageOperation(private var applicationContext: Context, private var file
             catch (e: IOException) {
                 e.printStackTrace()
             }
+        }*/
+        val file = File(directory, fileName)
+        try {
+            file.createNewFile()
+
+            try {
+                val outputStream = FileOutputStream(file)
+                outputStream.write(data)
+                outputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
+
     }
 
-    fun getByteArrayFromFile(fileName: String, byteArraySize: Int): ByteArray {
+    fun getByteArrayFromFile(fileName: String): ByteArray {
         val file = File(directory, fileName)
+        val byteArraySize = file.length().toInt()
 
         if (file.exists()) {
             try {
@@ -184,7 +216,7 @@ class StorageOperation(private var applicationContext: Context, private var file
     }
 
     fun getStringFromFile(fileName: String): String {
-        val file = File(directory, fileName)
+        val file = File(directory, "$fileName.json")
 
         if (file.exists()) {
             try {
@@ -261,7 +293,6 @@ class StorageOperation(private var applicationContext: Context, private var file
                 e.printStackTrace()
             }
         }
-
 
     }
 

@@ -1,11 +1,13 @@
 package com.txtlocker
 
+import SecureOperation
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -25,21 +27,31 @@ import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Note
 import kotlin.properties.Delegates
 
+//TODO:Handle secureOperation from MainActivity (and other activities)
 class ListOfNotesActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
     private lateinit var fileToOpen: String
+    private lateinit var currentDirectory: String
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: com.google.android.material.navigation.NavigationView
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
+
+    private lateinit var secureOperation: SecureOperation
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
-        //Get filename from previous activity
-        this.fileToOpen = intent.getSerializableExtra("FILE") as String
+        ////Get filename from previous activity
+        //this.fileToOpen = intent.getSerializableExtra("FILE") as String
 
-        val usedStorage = StorageOperation(applicationContext, fileToOpen)
+        //Get opened directory from previous activity
+        this.currentDirectory = intent.getSerializableExtra("CURRENT_DIRECTORY") as String
+
+        //Get secureOperation from previous activity
+        this.secureOperation = intent.getSerializableExtra("SECURE_OPERATION") as SecureOperation
+
+        //val usedStorage = StorageOperation(applicationContext, fileToOpen)
 
         //Create navigation menu for directories
         this.drawerLayout = findViewById(R.id.drawerLayout)
@@ -51,17 +63,24 @@ class ListOfNotesActivity : AppCompatActivity() {
             this, drawerLayout, toolbar, R.string.open, R.string.close)
         this.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        setupNavigationMenu(usedStorage)
 
-        //Get notes from storage
-        val notes = usedStorage.getNotesFromFile()
+        //TODO:Create new version of setupNavigationMenu()
+        //setupNavigationMenu(usedStorage)
+        setupNavigationMenu_NEW()
+
+        ////Get notes from storage
+        //val notes = usedStorage.getNotesFromFile()
 
         //Load ListView with storage content
-        loadListView(notes, usedStorage)
+        //TODO:Create new loadListView()
+        loadListView_NEW()
+        //loadListView(notes, usedStorage)
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
         buttonNewNote.setOnClickListener {
-            setupButtonNewNote(usedStorage, notes)
+            //TODO:Create new setupButtonNewNote()
+            setupButtonNewNote_NEW()
+            //setupButtonNewNote(usedStorage, notes)
         }
 
     }
@@ -95,6 +114,91 @@ class ListOfNotesActivity : AppCompatActivity() {
             positionRowNoteShort.text = notes[position].content
             return row
         }
+    }
+
+    private fun setupNavigationMenu_NEW() {
+        val directories = secureOperation.getAllDirectories()
+
+        //Retrieve the reference to the navigation menu
+        val menu = this.navigationView.menu
+
+        //Clear existing menu items
+        menu.clear()
+
+        //Add menu items for each JSON file
+        directories.forEachIndexed { index, directoryName ->
+            val menuItem = menu.add(directoryName)
+            menuItem.title = directoryName // Set your own icon
+        }
+
+        //Add function to open each directory
+        for (i in 0 until menu.size()) {
+            val menuItem = menu.getItem(i)
+            val itemName = menuItem.title.toString()
+
+            menuItem.setOnMenuItemClickListener {
+                runItem(itemName)
+                this.drawerLayout.closeDrawer(GravityCompat.START)
+                true
+            }
+        }
+
+        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        val headerView = navigationView.getHeaderView(0) // Get the first (and usually only) header view
+
+        //Add function to add directory
+        val buttonAddDirectory = headerView.findViewById<ImageButton>(R.id.buttonAddDirectory)
+        buttonAddDirectory.setOnClickListener {
+            //TODO:Create new add directory method to enter new directory view
+            val intent = Intent(this, AddDirectoryActivity::class.java).also {
+                //it.putExtra("POSITION", 0)
+                //it.putExtra("FILE", this.fileToOpen)
+                it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+                it.putExtra("SECURE_OPERATION", secureOperation)
+            }
+            startActivity(intent)
+            finish()
+
+            /*val intent = Intent(this, AddDirectoryActivity::class.java).also {
+                //it.putExtra("POSITION", 0)
+                it.putExtra("FILE", this.fileToOpen)
+            }
+            startActivity(intent)
+            finish()*/
+        }
+
+        //Add function to delete directory
+
+        val buttonDeleteDirectory = headerView.findViewById<ImageButton>(R.id.buttonDeleteDirectory)
+        buttonDeleteDirectory.setOnClickListener {
+            //TODO:Create new delete directory method to enter new directory view
+            val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
+                it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+                it.putExtra("SECURE_OPERATION", secureOperation)
+            }
+            startActivity(intent)
+            finish()
+
+            /*val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
+                //it.putExtra("POSITION", 0)
+                it.putExtra("FILE", this.fileToOpen)
+            }
+            startActivity(intent)
+            finish()*/
+        }
+
+        //Add function to exit app
+        val buttonExit = headerView.findViewById<Button>(R.id.buttonExitApp)
+        buttonExit.setOnClickListener {
+            secureOperation.runAppCloseAction()
+            val intent = Intent(this, MainActivity::class.java).also {
+                //it.putExtra("POSITION", 0)
+                //it.putExtra("FILE", this.fileToOpen)
+            }
+            startActivity(intent)
+            finish()
+        }
+
     }
 
     private fun setupNavigationMenu(storage: StorageOperation) {
@@ -178,6 +282,39 @@ class ListOfNotesActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
+    private fun loadListView_NEW() {
+        val notes = this.secureOperation.getNotes(this.currentDirectory)
+        //Create a view of list of notes to choose
+        val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
+        listViewNotes.adapter = ListAdapter(this, notes)
+
+        //Set view oon the chosen note position
+        this.position = intent.getSerializableExtra("POSITION") as Int
+        listViewNotes.setSelection(position)
+
+        //Create action of editing clicked note
+        listViewNotes.setOnItemClickListener {
+                parent, view, position, id ->
+
+            //TODO:Correct NotepadActivity to work with new type of storage
+            val intent = Intent(this, NotepadActivity::class.java).also {
+                it.putExtra("POSITION", position)
+                it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+                it.putExtra("SECURE_OPERATION", secureOperation)
+            }
+            startActivity(intent)
+            finish()
+        }
+
+        var adapter = ListAdapter(this, notes)
+        listViewNotes.adapter = adapter
+
+        enableChangeOfOrderOfNotes(listViewNotes, notes, adapter, secureOperation)
+
+    }
+
+    /*
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun loadListView(notes: ArrayList<Note>, storage: StorageOperation) {
         //Create a view of list of notes to choose
         val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
@@ -193,8 +330,10 @@ class ListOfNotesActivity : AppCompatActivity() {
 
             val intent = Intent(this, NotepadActivity::class.java).also {
                 it.putExtra("POSITION", position)
-                it.putExtra("NOTES", notes)
-                it.putExtra("FILE", this.fileToOpen)
+                //it.putExtra("NOTES", notes)
+                //it.putExtra("FILE", this.fileToOpen)
+                it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+                it.putExtra("SECURE_OPERATION", secureOperation)
             }
             startActivity(intent)
             finish()
@@ -205,10 +344,10 @@ class ListOfNotesActivity : AppCompatActivity() {
 
         enableChangeOfOrderOfNotes(listViewNotes, notes, adapter, storage)
 
-    }
+    }*/
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun enableChangeOfOrderOfNotes(listView: ListView, notes: ArrayList<Note>, adapter: ListAdapter, storage: StorageOperation) {
+    private fun enableChangeOfOrderOfNotes(listView: ListView, notes: ArrayList<Note>, adapter: ListAdapter, secureOperation: SecureOperation) {
         var draggedItemIndex: Int = -1
         listView.setOnItemLongClickListener { parent, view, position, id ->
             draggedItemIndex = position
@@ -231,7 +370,7 @@ class ListOfNotesActivity : AppCompatActivity() {
                         notes.removeAt(draggedItemIndex)
                         notes.add(droppedItemIndex, droppedNote)
                         adapter.notifyDataSetChanged()
-                        storage.runSavingNotes(notes)
+                        secureOperation.saveChangedNotes(currentDirectory, notes)
                     }
 
                     draggedItem.visibility = View.VISIBLE
@@ -243,6 +382,21 @@ class ListOfNotesActivity : AppCompatActivity() {
             }
             true
         }
+    }
+
+    private fun setupButtonNewNote_NEW() {
+        var notes = secureOperation.getNotes(currentDirectory)
+        notes.add(Note("New note's title", "New note"))
+        secureOperation.saveChangedNotes(currentDirectory, notes)
+
+        val intent = Intent(this, NotepadActivity::class.java).also {
+            it.putExtra("POSITION", notes.size - 1)
+            it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+            it.putExtra("SECURE_OPERATION", secureOperation)
+        }
+        startActivity(intent)
+        finish()
+
     }
 
     private fun setupButtonNewNote(storage: StorageOperation, notes: ArrayList<Note>) {
@@ -258,5 +412,9 @@ class ListOfNotesActivity : AppCompatActivity() {
         finish()
 
     }
+
+}
+
+private fun Parcelable.putExtra(s: String, secureOperation: SecureOperation) {
 
 }

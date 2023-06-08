@@ -1,8 +1,11 @@
 import android.content.Context
+import android.icu.text.CaseMap.Title
 import android.util.Base64
 import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Directory
+import com.txtlocker.Models.Note
 import com.txtlocker.R
+import java.io.File
 import java.security.SecureRandom
 import java.security.spec.KeySpec
 import javax.crypto.Cipher
@@ -26,18 +29,21 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
     private val storage = StorageOperation(this.applicationContext, this.mainStorageName)
     private val cipherTransformation = "AES/GCM/NoPadding"
     private val cipherAlgorithm = "AES"
-    private val keySizeBits = 512
+    private val keySizeBits = 128
     private val ivSizeBytes = 12 // 96 bits
     private var iv: ByteArray = ByteArray(this.ivSizeBytes)
     private var directories = ArrayList<Directory>()
 
     //Decrypting all directories content from app's main json file
-    fun runAppDecryption() {
+    fun runAppDecryption(): Boolean {
+        loadIV(mainStorageName)
         val decryptionKey = generateAESKeyFromPin(this.pin)
-        val encryptedData = this.storage.getStringFromFile(this.mainStorageName)
+        val encryptedData = storage.getByteArrayFromFile("$mainStorageName.json")
         val decryptedData = decrypt(this.mainStorageName, encryptedData, decryptionKey)
 
         this.directories = storage.getDirectoriesFromString(decryptedData)
+        return this.directories.size != 0
+
     }
 
     //Getting data of chosen directory loaded after running runAppDecryption()
@@ -45,23 +51,71 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
         return this.directories.find { it.name == directoryName }
     }
 
+    fun getNotes(directoryName: String): ArrayList<Note> {
+        val directory = directories.find { it.name == directoryName }
+        return if (directory != null) {
+            val notes = directory.notes
+            notes
+        } else {
+            arrayListOf()
+        }
+    }
+
+    fun saveChangedNotes(directoryName: String, notes: ArrayList<Note>) {
+        val directory = directories.find { it.name == directoryName }
+        if (directory != null) {
+            directory.notes = notes
+        }
+    }
+
     //TODO:Encrypting all directories to one json file
-    fun runAppEncryption() {
+    fun runAppCloseAction() {
         val encryptionKey = generateAESKeyFromPin(pin)
         val decryptedData = storage.getStringFromFile(mainStorageName)
-        val encrypted = encrypt(mainStorageName, decryptedData, encryptionKey)
+        encrypt(mainStorageName, decryptedData, encryptionKey)
+    }
+
+    //TODO:Perform correct app reset encryption
+    fun runAppFirstEncryption(secureOperation: SecureOperation) {
+        storage.deleteAllData()
+        //TODO:Replace runCheckIfNotesStorageExist() in StorageOperation with _NEW version
+        storage.runCheckIfNotesStorageExist_NEW()
+        generateIV(mainStorageName)
+
+        val encryptionKey = secureOperation.generateAESKeyFromPin(pin)
+        val decryptedData = storage.getStringFromFile(mainStorageName)
+        secureOperation.encrypt(mainStorageName, decryptedData, encryptionKey) // keep encrypt function public!
+    }
+
+    fun getAllDirectories(): MutableList<String> {
+        var directoriesList = mutableListOf<String>()
+        return directoriesList
+    }
+
+    fun addDirectory(newDirectoryName: String, isEncrypted: Boolean) {
+        val exampleNotes = arrayListOf<Note>(
+            Note("ExampleTitle1", "ExampleNote1"),
+            Note("ExampleTitle2", "ExampleNote2"),
+            Note("ExampleTitle3", "ExampleNote3"),
+            Note("ExampleTitle4", "ExampleNote4")
+        )
+        directories.add(Directory(newDirectoryName, isEncrypted, exampleNotes))
+    }
+
+    fun deleteDirectory(unwantedDirectoryName: String) {
+        directories.remove(directories.find { it.name == unwantedDirectoryName })
     }
 
     fun generateIV(directoryName: String) {
         iv = ByteArray(ivSizeBytes)
         val secureRandom = SecureRandom()
         secureRandom.nextBytes(iv)
-        saveIV("$directoryName.iv.txt")
+        saveIV(directoryName)
     }
 
     private fun generateAESKeyFromPin(pin: String): ByteArray {
         val iterationCount = 10000 // Number of iterations for key derivation
-        val keyLengthBits = 512 // Desired key length in bits
+        val keyLengthBits = 256 // Desired key length in bits
 
         val keySpec: KeySpec = PBEKeySpec(pin.toCharArray(), salt, iterationCount, keyLengthBits)
         val secretKeyFactory: SecretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512")
@@ -71,40 +125,45 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
     }
 
     fun encrypt(directoryName: String, decryptedData: String, encryptionKey: ByteArray) {
-        loadIV(directoryName)
-        executeEncryption(decryptedData, encryptionKey)
+        //loadIV(directoryName)
+        executeEncryption(directoryName, decryptedData, encryptionKey)
     }
 
-    private fun decrypt(directoryName: String, encryptedData: String, decryptionKey: ByteArray): String {
+    private fun decrypt(directoryName: String, encryptedData: ByteArray, decryptionKey: ByteArray): String {
         loadIV(directoryName)
         return executeDecryption(encryptedData, decryptionKey)
     }
 
     private fun saveIV(fileName: String) {
-        storage.saveByteArrayToFile(fileName, iv)
+        storage.saveByteArrayToFile("$fileName.iv.txt", iv)
     }
 
     private fun loadIV(directoryName: String) {
         val storage = StorageOperation(applicationContext, mainStorageName)
-        iv = storage.getByteArrayFromFile("$directoryName.iv.txt", ivSizeBytes)
+        iv = storage.getByteArrayFromFile("$directoryName.iv.txt")
     }
 
-    private fun executeEncryption(decryptedData: String, encryptionKey: ByteArray): String {
+    private fun executeEncryption(directoryName: String, decryptedData: String, encryptionKey: ByteArray) {
         val cipher = Cipher.getInstance(cipherTransformation)
         val keySpec = SecretKeySpec(encryptionKey, cipherAlgorithm)
-        val gcmSpec = GCMParameterSpec(keySizeBits, iv)
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmSpec)
+        val ivParameterSpec = GCMParameterSpec(keySizeBits, iv)
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParameterSpec)
         val encryptedBytes = cipher.doFinal(decryptedData.toByteArray(Charsets.UTF_8))
-        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+        storage.saveByteArrayToFile("$directoryName.json", encryptedBytes)
     }
 
-    private fun executeDecryption(encryptedData: String, decryptionKey: ByteArray): String {
-        val cipher = Cipher.getInstance(cipherTransformation)
-        val keySpec = SecretKeySpec(decryptionKey, cipherAlgorithm)
-        val gcmSpec = GCMParameterSpec(keySizeBits, iv)
-        cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmSpec)
-        val encryptedBytes = Base64.decode(encryptedData, Base64.DEFAULT)
-        val decryptedBytes = cipher.doFinal(encryptedBytes)
-        return String(decryptedBytes, Charsets.UTF_8)
+    private fun executeDecryption(encryptedData: ByteArray, decryptionKey: ByteArray): String {
+        try {
+            val cipher = Cipher.getInstance(cipherTransformation)
+            val keySpec = SecretKeySpec(decryptionKey, cipherAlgorithm)
+            val ivParameterSpec = GCMParameterSpec(keySizeBits, iv)
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec)
+            val encryptedBytes = Base64.decode(encryptedData, Base64.DEFAULT)
+            val decryptedBytes = cipher.doFinal(encryptedBytes)
+            return String(decryptedBytes, Charsets.UTF_8)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            throw RuntimeException("Decryption failed: ${ex.message}")
+        }
     }
 }

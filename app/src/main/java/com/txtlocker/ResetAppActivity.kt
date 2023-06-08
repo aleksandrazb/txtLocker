@@ -23,12 +23,11 @@ class ResetAppActivity : AppCompatActivity() {
         val edittext_newPin = findViewById<EditText>(R.id.editTextNewPin)
         val button_resetAppFinalize = findViewById<Button>(R.id.buttonResetAppFinalize)
         button_resetAppFinalize.setOnClickListener {
-            var storage = StorageOperation(applicationContext, getString(R.string.main_note_storage))
-            storage.deleteAllData()
-            //TODO:Replace runCheckIfNotesStorageExist() in StorageOperation with _NEW version
-            storage.runCheckIfNotesStorageExist_NEW()
             var secureOperation = SecureOperation(applicationContext, edittext_newPin.text.toString())
-            secureOperation.runAppEncryption()
+            secureOperation.runAppFirstEncryption(secureOperation)
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
 
     }

@@ -4,6 +4,7 @@ import SecureOperation
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -17,9 +18,25 @@ class MainActivity : AppCompatActivity() {
         val edittext_pin = findViewById<EditText>(R.id.editTextPin)
         val button_submit = findViewById<Button>(R.id.buttonSubmit)
         val button_reset_app = findViewById<Button>(R.id.buttonResetApp)
+        val currentDirectory = getString(R.string.main_note_storage)
 
         button_submit.setOnClickListener {
-            actionGivePermission(edittext_pin.text.toString())
+            //actionGivePermission(edittext_pin.text.toString())
+            val secureOperation = SecureOperation(applicationContext ,edittext_pin.text.toString())
+            if (secureOperation.runAppDecryption()) { //TODO:!!!!!Decryption failed: error:1e000065:Cipher functions:OPENSSL_internal:BAD_DECRYPT
+                val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                    it.putExtra("POSITION", 0)
+                    it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+                    it.putExtra("SECURE_OPERATION", secureOperation)
+                }
+                startActivity(intent)
+                finish()
+            }
+            else {
+                Toast.makeText(applicationContext, "Incorrect PIN", Toast.LENGTH_LONG).show()
+            }
+
+
         }
 
         button_reset_app.setOnClickListener {
@@ -37,11 +54,8 @@ class MainActivity : AppCompatActivity() {
     private fun actionGivePermission(pin: String) {
         //TODO(Set up secure pin authentication)
 
-        var secureOperation = SecureOperation(applicationContext ,pin)
-        secureOperation.runAppDecryption()
-
         //old actionGivePermission(pin: String) code
-        /*if (pin == "1234") {
+        if (pin == "1234") {
             Toast.makeText(applicationContext, "Unlocked", Toast.LENGTH_LONG).show()
             finish()
             val fileToOpen = getString(R.string.main_note_storage)
@@ -57,6 +71,10 @@ class MainActivity : AppCompatActivity() {
         }
         else {
             Toast.makeText(applicationContext, "Incorrect PIN", Toast.LENGTH_LONG).show()
-        }*/
+        }
     }
+}
+
+private fun Parcelable.putExtra(s: String, secureOperation: SecureOperation) {
+
 }
