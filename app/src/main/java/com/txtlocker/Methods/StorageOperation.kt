@@ -45,8 +45,13 @@ class StorageOperation(private var applicationContext: Context, private var file
         return arrayListOfDirectories
     }
 
+    //TODO:Replace runCheckIfNotesStorageExist() with _NEW version
     fun runCheckIfNotesStorageExist() {
         checkIfNotesStorageExist()
+    }
+
+    fun runCheckIfNotesStorageExist_NEW() {
+        checkIfNotesStorageExist_NEW()
     }
 
     fun getNotesFromFile(): ArrayList<Note> {
@@ -223,6 +228,41 @@ class StorageOperation(private var applicationContext: Context, private var file
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun checkIfNotesStorageExist_NEW() {
+        var newNotes = arrayListOf<Note>(
+            Note("ExampleTitle1", "ExampleNote1"),
+            Note("ExampleTitle2", "ExampleNote2"),
+            Note("ExampleTitle3", "ExampleNote3"),
+            Note("ExampleTitle4", "ExampleNote4")
+        )
+
+        if(!file.exists()) {
+            try {
+                val directories = arrayListOf<Directory>(
+                    Directory(mainNoteStorage, false, newNotes)
+                )
+
+                file.createNewFile()
+                val gson = Gson()
+                val json = gson.toJson(directories)
+
+                try {
+                    val fileWriter = FileWriter(file)
+                    fileWriter.write(json)
+                    fileWriter.close()
+                }
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+            catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+
     }
 
 

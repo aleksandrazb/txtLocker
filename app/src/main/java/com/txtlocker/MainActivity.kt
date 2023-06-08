@@ -1,5 +1,6 @@
 package com.txtlocker
 
+import SecureOperation
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,14 +23,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         button_reset_app.setOnClickListener {
-            var usedStorage = StorageOperation(applicationContext, getString(R.string.main_note_storage))
-            usedStorage.deleteAllData()
+            val intent = Intent(this, ResetAppActivity::class.java)//.also {
+                //it.putExtra("POSITION", 0)
+                //it.putExtra("FILE", fileToOpen)
+            //}
+            startActivity(intent)
+            finish()
+            /*var usedStorage = StorageOperation(applicationContext, getString(R.string.main_note_storage))
+            usedStorage.deleteAllData()*/
         }
     }
 
     private fun actionGivePermission(pin: String) {
         //TODO(Set up secure pin authentication)
-        if (pin == "1234") {
+
+        var secureOperation = SecureOperation(applicationContext ,pin)
+        secureOperation.runAppDecryption()
+
+        //old actionGivePermission(pin: String) code
+        /*if (pin == "1234") {
             Toast.makeText(applicationContext, "Unlocked", Toast.LENGTH_LONG).show()
             finish()
             val fileToOpen = getString(R.string.main_note_storage)
@@ -45,6 +57,6 @@ class MainActivity : AppCompatActivity() {
         }
         else {
             Toast.makeText(applicationContext, "Incorrect PIN", Toast.LENGTH_LONG).show()
-        }
+        }*/
     }
 }
