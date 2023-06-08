@@ -33,13 +33,14 @@ class StorageOperation(private var applicationContext: Context, private var file
         return listOfStorages
     }
 
+    //TODO:Replace this function with getDirectoriesFromString(string: String)
     fun getArrayListOfStorages(): ArrayList<Directory> {
         var arrayListOfDirectories: ArrayList<Directory> = ArrayList()
         val jsonFiles =
             directory.listFiles { _, name -> name.endsWith(".json") }
 
         jsonFiles?.forEachIndexed { index, file ->
-            arrayListOfDirectories.add(Directory(file.nameWithoutExtension.toString()))
+            //arrayListOfDirectories.add(Directory(file.nameWithoutExtension.toString(), , ArrayList<Directory>()))
         }
         return arrayListOfDirectories
     }
@@ -50,6 +51,14 @@ class StorageOperation(private var applicationContext: Context, private var file
 
     fun getNotesFromFile(): ArrayList<Note> {
         return loadNotesFromFile()
+    }
+
+    fun getNotesFromString(string: String): ArrayList<Note> {
+        return loadNotesFromString(string)
+    }
+
+    fun getDirectoriesFromString(string: String): ArrayList<Directory> {
+        return loadDirectoriesFromString(string)
     }
 
     fun runSavingNotes(notes: ArrayList<Note>) {
@@ -169,6 +178,24 @@ class StorageOperation(private var applicationContext: Context, private var file
         return ByteArray(0)
     }
 
+    fun getStringFromFile(fileName: String): String {
+        val file = File(directory, fileName)
+
+        if (file.exists()) {
+            try {
+                val inputStream = FileInputStream(file)
+                val byteArray = inputStream.readBytes()
+                inputStream.close()
+
+                return String(byteArray, Charsets.UTF_8)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+        return ""
+    }
+
     private fun checkIfNotesStorageExist() {
         if(!file.exists()) {
             try {
@@ -217,6 +244,40 @@ class StorageOperation(private var applicationContext: Context, private var file
         catch (e: IOException) {
             e.printStackTrace()
             notes
+        }
+    }
+
+    private fun loadNotesFromString(jsonString: String): ArrayList<Note> {
+        var notes: ArrayList<Note> = ArrayList()
+
+        val gson = Gson()
+
+        return try {
+            val type: Type = object : TypeToken<ArrayList<Note>>() {}.type
+            notes = gson.fromJson(jsonString, type)
+
+            notes
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+            notes
+        }
+    }
+
+    private fun loadDirectoriesFromString(jsonString: String): ArrayList<Directory> {
+        var directories: ArrayList<Directory> = ArrayList()
+
+        val gson = Gson()
+
+        return try {
+            val type: Type = object : TypeToken<ArrayList<Directory>>() {}.type
+            directories = gson.fromJson(jsonString, type)
+
+            directories
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+            directories
         }
     }
 
