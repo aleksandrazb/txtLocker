@@ -1,7 +1,6 @@
 package com.txtlocker.Methods
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -9,6 +8,7 @@ import com.txtlocker.Models.Directory
 import com.txtlocker.Models.Note
 import com.txtlocker.R
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
@@ -124,6 +124,49 @@ class StorageOperation(private var applicationContext: Context, private var file
                 Toast.makeText(applicationContext, "Can't remove $storage", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    fun saveByteArrayToFile(fileName: String, data: ByteArray) {
+        val newFileFullName = fileName
+        val file = File(directory, newFileFullName)
+
+        if(!file.exists()) {
+            try {
+                file.createNewFile()
+
+                try {
+                    val fileWriter = FileWriter(file)
+                    fileWriter.write(data.toString())
+                    fileWriter.close()
+                }
+                catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+            catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun getByteArrayFromFile(fileName: String, byteArraySize: Int): ByteArray {
+        val file = File(directory, fileName)
+
+        if (file.exists()) {
+            try {
+                val inputStream = FileInputStream(file)
+                val byteArray = ByteArray(byteArraySize)
+                val bytesRead = inputStream.read(byteArray)
+                inputStream.close()
+
+                // If the number of bytes read is less than the specified size, create a new array with the actual size
+                return if (bytesRead < byteArraySize) byteArray.copyOf(bytesRead) else byteArray
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+        return ByteArray(0)
     }
 
     private fun checkIfNotesStorageExist() {
