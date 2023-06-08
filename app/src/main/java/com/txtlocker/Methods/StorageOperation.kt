@@ -106,6 +106,26 @@ class StorageOperation(private var applicationContext: Context, private var file
         }
     }
 
+    fun deleteAllData() {
+        val storages = getListOfStorages()
+
+        for (storage in storages) {
+            val storageFile = File(directory, "$storage.json")
+            if (storageFile.exists()) {
+                try {
+                    storageFile.delete()
+                    Toast.makeText(applicationContext, "Directory $storage removed", Toast.LENGTH_LONG).show()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    Toast.makeText(applicationContext, "Couldn't remove $storage directory", Toast.LENGTH_LONG).show()
+                }
+            }
+            else {
+                Toast.makeText(applicationContext, "Can't remove $storage", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun checkIfNotesStorageExist() {
         if(!file.exists()) {
             try {

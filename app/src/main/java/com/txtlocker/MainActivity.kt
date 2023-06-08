@@ -22,7 +22,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         button_reset_app.setOnClickListener {
-            //TODO(Create resetting app functionality)
+            var usedStorage = StorageOperation(applicationContext, getString(R.string.main_note_storage))
+            usedStorage.deleteAllData()
         }
     }
 
