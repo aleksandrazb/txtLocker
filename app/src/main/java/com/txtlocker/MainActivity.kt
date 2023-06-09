@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import com.txtlocker.Methods.StorageOperation
 import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
@@ -21,10 +20,9 @@ class MainActivity : AppCompatActivity() {
         val currentDirectory = getString(R.string.main_note_storage)
 
         button_submit.setOnClickListener {
-            //actionGivePermission(edittext_pin.text.toString())
             val secureOperation = SecureOperation(edittext_pin.text.toString())
             secureOperation.setContext(applicationContext)
-            if (secureOperation.runAppDecryption()) { //FIXED!!!!!Decryption failed: error:1e000065:Cipher functions:OPENSSL_internal:BAD_DECRYPT
+            if (secureOperation.runAppDecryption()) {
                 val intent = Intent(this, ListOfNotesActivity::class.java).also {
                     it.putExtra("POSITION", 0)
                     it.putExtra("CURRENT_DIRECTORY", currentDirectory)
@@ -41,38 +39,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         button_reset_app.setOnClickListener {
-            val intent = Intent(this, ResetAppActivity::class.java)//.also {
-                //it.putExtra("POSITION", 0)
-                //it.putExtra("FILE", fileToOpen)
-            //}
+            val intent = Intent(this, ResetAppActivity::class.java)
             startActivity(intent)
             finish()
-            /*var usedStorage = StorageOperation(applicationContext, getString(R.string.main_note_storage))
-            usedStorage.deleteAllData()*/
-        }
-    }
-
-    private fun actionGivePermission(pin: String) {
-        //TODO(Set up secure pin authentication)
-
-        //old actionGivePermission(pin: String) code
-        if (pin == "1234") {
-            Toast.makeText(applicationContext, "Unlocked", Toast.LENGTH_LONG).show()
-            finish()
-            val fileToOpen = getString(R.string.main_note_storage)
-            val storage = StorageOperation(fileToOpen)
-            storage.setContext(applicationContext)
-            storage.runCheckIfNotesStorageExist()
-
-            val intent = Intent(this, ListOfNotesActivity::class.java).also {
-                it.putExtra("POSITION", 0)
-                it.putExtra("FILE", fileToOpen)
-            }
-            startActivity(intent)
-            finish()
-        }
-        else {
-            Toast.makeText(applicationContext, "Incorrect PIN", Toast.LENGTH_LONG).show()
         }
     }
 }

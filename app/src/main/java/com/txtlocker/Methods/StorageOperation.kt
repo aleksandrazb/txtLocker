@@ -14,9 +14,10 @@ import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
+import java.io.Serializable
 import java.lang.reflect.Type
 
-class StorageOperation(private var fileName: String) {
+class StorageOperation(private var fileName: String): Serializable {
 
     @Transient
     private var applicationContext: Context? = null
@@ -30,8 +31,114 @@ class StorageOperation(private var fileName: String) {
     }
 
 
-    private val fileFullName = "$fileName.json"
+    private val fileFullName = "$fileName.txt"
     private val file = File(directory, fileFullName)
+
+    fun runResetStorageUnencrypted(): ByteArray {
+        deleteAllData()
+        return saveUnencryptedNewStorage()
+    }
+
+    private fun deleteAllData() {
+        val storages = getListOfStorages()
+
+        for (storage in storages) {
+            val files = arrayListOf<File>(
+                //TODO:Remove line below when removal of .json files won't be needed
+                File(directory, "$storage.json"),
+                File(directory, "$storage.iv.txt"),
+                File(directory, "$storage.txt")
+            )
+            for (file in files) {
+                if (file.exists()) {
+                    try {
+                        file.delete()
+                        Toast.makeText(applicationContext, "Directory ${file.name} removed", Toast.LENGTH_LONG).show()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                        Toast.makeText(applicationContext, "Couldn't remove ${file.name} directory", Toast.LENGTH_LONG).show()
+                    }
+                }
+                else {
+                    Toast.makeText(applicationContext, "Can't remove ${file.name}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun saveUnencryptedNewStorage(): ByteArray {
+        var newNotes = arrayListOf<Note>(
+            Note("ExampleTitle1", "ExampleNote1"),
+            Note("ExampleTitle2", "ExampleNote2"),
+            Note("ExampleTitle3", "ExampleNote3"),
+            Note("ExampleTitle4", "ExampleNote4")
+        )
+        val directories = arrayListOf<Directory>(
+            Directory(mainNoteStorage!!, false, newNotes)
+        )
+        val gson = Gson()
+        val json = gson.toJson(directories)
+
+        return json.toByteArray()
+    }
+
+    fun saveByteArrayToFile(fileNameWithExtension: String, data: ByteArray) {
+        val file = File(directory, fileNameWithExtension)
+        try {
+            file.createNewFile()
+
+            try {
+                val outputStream = FileOutputStream(file)
+                outputStream.write(data)
+                outputStream.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun getByteArrayFromFile(fileNameWithExtension: String): ByteArray {
+        val file = File(directory, fileNameWithExtension)
+        val byteArraySize = file.length().toInt()
+
+        if (file.exists()) {
+            try {
+                val inputStream = FileInputStream(file)
+                val byteArray = ByteArray(byteArraySize)
+                val bytesRead = inputStream.read(byteArray)
+                inputStream.close()
+                // If the number of bytes read is less than the specified size, create a new array with the actual size
+                return if (bytesRead < byteArraySize) byteArray.copyOf(bytesRead) else byteArray
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return ByteArray(0)
+    }
+
+    fun getDirectoriesFromByteArray(byteArray: ByteArray): ArrayList<Directory> {
+        return loadDirectoriesFromByteArray(byteArray)
+    }
+
+    private fun loadDirectoriesFromByteArray(jsonByteArray: ByteArray): ArrayList<Directory> {
+        var directories: ArrayList<Directory> = ArrayList()
+        val type: Type = object : TypeToken<ArrayList<Directory>>() {}.type
+        val gson = Gson()
+
+        return try {
+            val jsonString = jsonByteArray.toString(Charsets.UTF_8)
+            directories = gson.fromJson(jsonString, type)
+            directories
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+            directories
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------
 
     fun getListOfStorages(): MutableList<String> {
         val jsonFiles =
@@ -57,14 +164,7 @@ class StorageOperation(private var fileName: String) {
         return arrayListOfDirectories
     }
 
-    //TODO:Replace runCheckIfNotesStorageExist() with _NEW version
-    fun runCheckIfNotesStorageExist() {
-        checkIfNotesStorageExist()
-    }
 
-    fun runCheckIfNotesStorageExist_NEW() {
-        checkIfNotesStorageExist_NEW()
-    }
 
     fun getNotesFromFile(): ArrayList<Note> {
         return loadNotesFromFile()
@@ -131,167 +231,6 @@ class StorageOperation(private var fileName: String) {
             Toast.makeText(applicationContext, "Don't remove $unwantedFileName which is base directory", Toast.LENGTH_LONG).show()
         }
     }
-
-    fun deleteAllData() {
-        val storages = getListOfStorages()
-
-        for (storage in storages) {
-            val storageFile = File(directory, "$storage.json")
-            if (storageFile.exists()) {
-                try {
-                    storageFile.delete()
-                    Toast.makeText(applicationContext, "Directory $storage removed", Toast.LENGTH_LONG).show()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    Toast.makeText(applicationContext, "Couldn't remove $storage directory", Toast.LENGTH_LONG).show()
-                }
-            }
-            else {
-                Toast.makeText(applicationContext, "Can't remove $storage", Toast.LENGTH_LONG).show()
-            }
-
-            val storageIVFile = File(directory, "$storage.iv.txt")
-            if (storageIVFile.exists()) {
-                try {
-                    storageIVFile.delete()
-                    Toast.makeText(applicationContext, "Directory $storage removed", Toast.LENGTH_LONG).show()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    Toast.makeText(applicationContext, "Couldn't remove $storage directory", Toast.LENGTH_LONG).show()
-                }
-            }
-            else {
-                Toast.makeText(applicationContext, "Can't remove $storage", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    fun saveByteArrayToFile(fileName: String, data: ByteArray) {
-        val file = File(directory, fileName)
-        try {
-            file.createNewFile()
-
-            try {
-                val outputStream = FileOutputStream(file)
-                outputStream.write(data)
-                outputStream.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
-    }
-
-    fun getByteArrayFromFile(fileName: String): ByteArray {
-        val file = File(directory, fileName)
-        val byteArraySize = file.length().toInt()
-
-        if (file.exists()) {
-            try {
-                val inputStream = FileInputStream(file)
-                val byteArray = ByteArray(byteArraySize)
-                val bytesRead = inputStream.read(byteArray)
-                inputStream.close()
-
-                // If the number of bytes read is less than the specified size, create a new array with the actual size
-                return if (bytesRead < byteArraySize) byteArray.copyOf(bytesRead) else byteArray
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-
-        return ByteArray(0)
-    }
-
-    fun getStringFromFile(fileName: String): String {
-        val file = File(directory, "$fileName.json")
-
-        if (file.exists()) {
-            try {
-                val inputStream = FileInputStream(file)
-                val byteArray = inputStream.readBytes()
-                inputStream.close()
-
-                return String(byteArray, Charsets.UTF_8)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-
-        return ""
-    }
-
-    private fun checkIfNotesStorageExist() {
-        if(!file.exists()) {
-            try {
-                val notes = arrayListOf<Note>(
-                    Note("ExampleTitle1", "ExampleNote1"),
-                    Note("ExampleTitle2", "ExampleNote2"),
-                    Note("ExampleTitle3", "ExampleNote3"),
-                    Note("ExampleTitle4", "ExampleNote4")
-                )
-
-                file.createNewFile()
-                val gson = Gson()
-                val json = gson.toJson(notes)
-
-                try {
-                    val fileWriter = FileWriter(file)
-                    fileWriter.write(json)
-                    fileWriter.close()
-                }
-                catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
-            catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun checkIfNotesStorageExist_NEW() {
-        var newNotes = arrayListOf<Note>(
-            Note("ExampleTitle1", "ExampleNote1"),
-            Note("ExampleTitle2", "ExampleNote2"),
-            Note("ExampleTitle3", "ExampleNote3"),
-            Note("ExampleTitle4", "ExampleNote4")
-        )
-        val directories = arrayListOf<Directory>(
-            Directory(mainNoteStorage!!, false, newNotes)
-        )
-        val gson = Gson()
-        val json = gson.toJson(directories)
-
-        //TODO:saveByteArrayToFile()
-        saveByteArrayToFile(mainNoteStorage!!, json.toByteArray())
-
-        /*if(!file.exists()) {
-            try {
-
-
-                file.createNewFile()
-
-
-                try {
-                    val fileWriter = FileWriter(file)
-                    fileWriter.write(json)
-                    fileWriter.close()
-                }
-                catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
-            catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }*/
-
-    }
-
-
 
     private fun loadNotesFromFile(): ArrayList<Note> {
         var notes: ArrayList<Note> = ArrayList()
@@ -367,6 +306,23 @@ class StorageOperation(private var fileName: String) {
             e.printStackTrace()
             Toast.makeText(applicationContext, "Couldn't save notes to file", Toast.LENGTH_LONG).show()
         }
+    }
+
+    fun getStringFromFile(fileNameWithExtension: String): String {
+        val file = File(directory, fileNameWithExtension)
+
+        if (file.exists()) {
+            try {
+                val inputStream = FileInputStream(file)
+                val byteArray = inputStream.readBytes()
+                inputStream.close()
+
+                return String(byteArray, Charsets.UTF_8)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return ""
     }
 
 }

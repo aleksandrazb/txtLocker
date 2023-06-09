@@ -30,7 +30,6 @@ import kotlin.properties.Delegates
 //TODO:Handle secureOperation from MainActivity (and other activities)
 class ListOfNotesActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
-    private lateinit var fileToOpen: String
     private lateinit var currentDirectory: String
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: com.google.android.material.navigation.NavigationView
@@ -58,7 +57,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         this.drawerLayout = findViewById(R.id.drawerLayout)
         this.navigationView = findViewById(R.id.navigation_view)
         this.toolbar = findViewById(R.id.toolbar)
-        this.toolbar.title = fileToOpen
+        this.toolbar.title = currentDirectory
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, R.string.open, R.string.close)
@@ -237,7 +236,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         buttonAddDirectory.setOnClickListener {
             val intent = Intent(this, AddDirectoryActivity::class.java).also {
                 //it.putExtra("POSITION", 0)
-                it.putExtra("FILE", this.fileToOpen)
+                it.putExtra("FILE", currentDirectory)
             }
             startActivity(intent)
             finish()
@@ -249,7 +248,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         buttonDeleteDirectory.setOnClickListener {
             val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
                 //it.putExtra("POSITION", 0)
-                it.putExtra("FILE", this.fileToOpen)
+                it.putExtra("FILE", currentDirectory)
             }
             startActivity(intent)
             finish()
@@ -270,7 +269,7 @@ class ListOfNotesActivity : AppCompatActivity() {
 
     private fun runItem(fileToOpen: String) {
 
-        if (this.fileToOpen != fileToOpen) {
+        if (this.currentDirectory != fileToOpen) {
             Toast.makeText(applicationContext, fileToOpen, Toast.LENGTH_LONG).show()
             val intent = Intent(this, ListOfNotesActivity::class.java).also {
                 it.putExtra("POSITION", 0)
@@ -407,7 +406,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         val intent = Intent(this, NotepadActivity::class.java).also {
             it.putExtra("POSITION", notes.size - 1)
             it.putExtra("NOTES", notes)
-            it.putExtra("FILE", this.fileToOpen)
+            it.putExtra("FILE", this.currentDirectory)
         }
         startActivity(intent)
         finish()
