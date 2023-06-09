@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light">
+        <!-- Customize your light mode theme -->
+    </style>
+
+    <style name="AppTheme.Dark" parent="Theme.AppCompat">
+        <!-- Customize your dark mode theme -->
+    </style>
+</resources>

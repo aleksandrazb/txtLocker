@@ -16,6 +16,7 @@
 
     <Button
         android:id="@+id/buttonSave"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -23,10 +24,12 @@
         android:text="@string/save"
         app:layout_constraintTop_toTopOf="@id/view"
         app:layout_constraintRight_toLeftOf="@id/buttonClose"
-        app:rippleColor="@color/luminous_green" />
+        app:rippleColor="@color/luminous_green"
+        android:textColor="@color/luminous_green"/>
 
     <Button
         android:id="@+id/buttonDelete"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -34,10 +37,12 @@
         android:text="@string/delete"
         app:layout_constraintTop_toTopOf="@id/view"
         app:layout_constraintLeft_toLeftOf="@id/view"
-        app:rippleColor="@color/luminous_green" />
+        android:textColor="@color/burgundy_red"
+        app:rippleColor="@color/burgundy_red" />
 
     <Button
         android:id="@+id/buttonClose"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -45,7 +50,7 @@
         android:text="@string/close"
         app:layout_constraintTop_toTopOf="@id/view"
         app:layout_constraintRight_toRightOf="@id/view"
-        app:rippleColor="@color/luminous_green" />
+        app:rippleColor="@color/burgundy_red" />
 
     <EditText
         android:id="@+id/editTextTitle"
@@ -62,29 +67,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputNotes"
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"
-        app:layout_constraintTop_toBottomOf="@id/editTextTitle"
-        android:scrollbarTrackVertical="@id/textInputNotes">
+        android:layout_height="match_parent"
+        android:layout_marginTop="130dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
-            android:id="@+id/inputNotes"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputNotes"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="start|top"
-            android:hint="@string/note_text_hint"
-            android:inputType="textMultiLine"
-            android:scrollbarAlwaysDrawVerticalTrack="true"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="vertical" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
+            <EditText
+                android:id="@+id/inputNotes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="start|top"
+                android:hint="@string/note_text_hint"
+                android:inputType="textMultiLine"
+                android:scrollbarStyle="outsideOverlay"
+                android:scrollbars="vertical" />
 
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

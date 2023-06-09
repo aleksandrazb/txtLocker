@@ -25,6 +25,7 @@
 
         <Button
             android:id="@+id/buttonBack"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -32,7 +33,7 @@
             android:text="@string/back"
             app:layout_constraintEnd_toEndOf="@id/app_bar_view"
             app:layout_constraintTop_toTopOf="@id/app_bar_view"
-            app:rippleColor="@color/luminous_green" />
+            app:rippleColor="@color/burgundy_red" />
 
         <TextView
             android:id="@+id/directoryName"
@@ -41,7 +42,6 @@
             android:layout_marginTop="30dp"
             android:text="@string/directory_name"
             android:fontFamily="casual"
-            android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -61,6 +61,7 @@
 
         <Button
             android:id="@+id/buttonCreateDirectory"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
@@ -68,7 +69,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/editTextDirectoryName"
-            app:rippleColor="@color/luminous_green" />
+            app:rippleColor="@color/luminous_green"
+            android:textColor="@color/luminous_green"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

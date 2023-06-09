@@ -64,23 +64,17 @@ class ListOfNotesActivity : AppCompatActivity() {
         this.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        //TODO:Create new version of setupNavigationMenu()
         setupNavigationMenu()
 
-        ////Get notes from storage
-        //val notes = usedStorage.getNotesFromFile()
-
-        //Load ListView with storage content
-        //TODO:Create new loadListView()
-        loadListView_NEW()
-        //loadListView(notes, usedStorage)
+        //Load ListView with directory content
+        loadListView()
 
         val buttonNewNote = findViewById<Button>(R.id.buttonNewNote)
         buttonNewNote.setOnClickListener {
-            //TODO:Create new setupButtonNewNote()
-            setupButtonNewNote_NEW()
-            //setupButtonNewNote(usedStorage, notes)
+            setupButtonNewNote()
         }
+        //buttonNewNote.elevation = 0F; // Set the elevation to 0 to remove the shadow
+        //buttonNewNote.background = null; // Set the background to null to remove any background drawable
 
     }
 
@@ -196,7 +190,7 @@ class ListOfNotesActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadListView_NEW() {
+    private fun loadListView() {
         val notes = this.secureOperation.getNotes(this.currentDirectory)
         //Create a view of list of notes to choose
         val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
@@ -210,7 +204,6 @@ class ListOfNotesActivity : AppCompatActivity() {
         listViewNotes.setOnItemClickListener {
                 parent, view, position, id ->
 
-            //TODO:Correct NotepadActivity to work with new type of storage
             val intent = Intent(this, NotepadActivity::class.java).also {
                 it.putExtra("POSITION", position)
                 it.putExtra("CURRENT_DIRECTORY", currentDirectory)
@@ -219,46 +212,10 @@ class ListOfNotesActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-
         var adapter = ListAdapter(this, notes)
         listViewNotes.adapter = adapter
-
         enableChangeOfOrderOfNotes(listViewNotes, notes, adapter, secureOperation)
-
     }
-
-    /*
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadListView(notes: ArrayList<Note>, storage: StorageOperation) {
-        //Create a view of list of notes to choose
-        val listViewNotes = findViewById<ListView>(R.id.listViewNotes)
-        listViewNotes.adapter = ListAdapter(this, notes)
-
-        //Set view oon the chosen note position
-        this.position = intent.getSerializableExtra("POSITION") as Int
-        listViewNotes.setSelection(position)
-
-        //Create action of editing clicked note
-        listViewNotes.setOnItemClickListener {
-                parent, view, position, id ->
-
-            val intent = Intent(this, NotepadActivity::class.java).also {
-                it.putExtra("POSITION", position)
-                //it.putExtra("NOTES", notes)
-                //it.putExtra("FILE", this.fileToOpen)
-                it.putExtra("CURRENT_DIRECTORY", currentDirectory)
-                it.putExtra("SECURE_OPERATION", secureOperation)
-            }
-            startActivity(intent)
-            finish()
-        }
-
-        var adapter = ListAdapter(this, notes)
-        listViewNotes.adapter = adapter
-
-        enableChangeOfOrderOfNotes(listViewNotes, notes, adapter, storage)
-
-    }*/
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun enableChangeOfOrderOfNotes(listView: ListView, notes: ArrayList<Note>, adapter: ListAdapter, secureOperation: SecureOperation) {
@@ -298,7 +255,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupButtonNewNote_NEW() {
+    private fun setupButtonNewNote() {
         var notes = secureOperation.getNotes(currentDirectory)
         notes.add(Note("New note's title", "New note"))
         secureOperation.saveChangedNotes(currentDirectory, notes)
@@ -307,20 +264,6 @@ class ListOfNotesActivity : AppCompatActivity() {
             it.putExtra("POSITION", notes.size - 1)
             it.putExtra("CURRENT_DIRECTORY", currentDirectory)
             it.putExtra("SECURE_OPERATION", secureOperation)
-        }
-        startActivity(intent)
-        finish()
-
-    }
-
-    private fun setupButtonNewNote(storage: StorageOperation, notes: ArrayList<Note>) {
-        notes.add(Note("New note's title", "New note"))
-        storage.runSavingNotes(notes)
-
-        val intent = Intent(this, NotepadActivity::class.java).also {
-            it.putExtra("POSITION", notes.size - 1)
-            it.putExtra("NOTES", notes)
-            it.putExtra("FILE", this.currentDirectory)
         }
         startActivity(intent)
         finish()

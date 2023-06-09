@@ -13,7 +13,6 @@
         android:layout_marginTop="100dp"
         android:fontFamily="casual"
         android:text="@string/enter_new_pin"
-        android:textColor="@color/black"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -36,6 +35,7 @@
 
     <Button
         android:id="@+id/buttonResetAppFinalize"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
@@ -43,10 +43,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextNewPin"
-        app:rippleColor="@color/luminous_green" />
+        app:rippleColor="@color/burgundy_red"
+        android:textColor="@color/burgundy_red"/>
 
     <Button
         android:id="@+id/buttonGoBack"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"

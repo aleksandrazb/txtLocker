@@ -18,6 +18,7 @@
 
         <Button
             android:id="@+id/buttonNewNote"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -25,7 +26,8 @@
             android:text="@string/new_note"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:rippleColor="@color/luminous_green" />
+            app:rippleColor="@color/luminous_green"
+            android:textColor="@color/luminous_green"/>
 
         <ListView
             android:id="@+id/listViewNotes"

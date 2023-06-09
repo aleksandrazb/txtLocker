@@ -18,6 +18,7 @@
 
         <Button
             android:id="@+id/buttonBack"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -25,7 +26,7 @@
             android:text="@string/back"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:rippleColor="@color/luminous_green" />
+            app:rippleColor="@color/burgundy_red" />
 
         <ListView
             android:id="@+id/listViewDirectories"

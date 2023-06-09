@@ -63,7 +63,6 @@ class DeleteDirectoryActivity : AppCompatActivity() {
 
         override fun getItem(position: Int): Any {
             return super.getItemViewType(position)
-            //return "Test"
         }
 
         override fun getView(position: Int, convertView: View?, viewGroup: ViewGroup?): View {
@@ -75,13 +74,11 @@ class DeleteDirectoryActivity : AppCompatActivity() {
             val deleteButton = row.findViewById<ImageButton>(R.id.buttonDeleteDirectory)
             deleteButton.setOnClickListener {
                 val directory: Directory? = secureOperation.getDirectory(directories[position])
-                //val directory = directories[position]
                 if (directory != null) {
                     deleteClickListener.onDirectoryDeleteClick(directory)
                 }
 
             }
-
             return row
         }
     }
@@ -91,17 +88,6 @@ class DeleteDirectoryActivity : AppCompatActivity() {
         val directories = this.secureOperation.getAllDirectories()
         val listAdapter = ListAdapter(this, directories, this.secureOperation, object : ListAdapter.DirectoryDeleteClickListener {
             override fun onDirectoryDeleteClick(directory: Directory) {
-                /*if (directory.name != getString(R.string.main_note_storage)) {
-                    val deleted = secureOperation.deleteDirectory(directory.name)
-                    if (deleted) {
-                        Toast.makeText(applicationContext, "Directory ${directory.name} deleted", Toast.LENGTH_LONG).show()
-                    }
-                }
-                else {
-                    Toast.makeText(applicationContext, "Main directory can't be removed", Toast.LENGTH_LONG).show()
-                }
-                (listViewDirectories.adapter as ListAdapter).notifyDataSetChanged()
-            }*/
                 if (directory.name != getString(R.string.main_note_storage))
                 {
                     val deleted = secureOperation.deleteDirectory(directory.name)

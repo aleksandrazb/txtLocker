@@ -18,11 +18,11 @@
             android:fontFamily="casual"
             android:textStyle="bold"
             android:text="@string/app_name"
-            android:textColor="@color/black"
             android:textSize="32sp" />
 
         <Button
             android:id="@+id/buttonExitApp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
@@ -35,8 +35,8 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
         android:background="@color/gray" />
 
 
@@ -53,7 +53,6 @@
             android:fontFamily="casual"
             android:textStyle="bold"
             android:text="@string/directories"
-            android:textColor="@color/black"
             android:textSize="18sp"/>
 
         <View
@@ -64,10 +63,13 @@
 
         <ImageButton
             android:id="@+id/buttonAddDirectory"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/baseline_add_directory"
             android:src="@drawable/baseline_add_directory"
-            app:rippleColor="@color/luminous_green" />
+            app:rippleColor="@color/luminous_green"/>
 
         <View
             android:layout_width="9dp"
@@ -79,8 +81,10 @@
             android:id="@+id/buttonDeleteDirectory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/baseline_delete_directory"
             android:src="@drawable/baseline_delete_directory"
-            app:rippleColor="@color/luminous_green" />
+            app:rippleColor="@color/burgundy_red" />
 
     </LinearLayout>
 

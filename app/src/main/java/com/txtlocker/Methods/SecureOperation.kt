@@ -156,14 +156,6 @@ class SecureOperation(private var pin: String): Serializable {
         }
     }
 
-    //----------------------------------------------------------------------------------------------
-
-
-    //Getting data of chosen directory loaded after running runAppDecryption()
-    fun getDirectory(directoryName: String): Directory? {
-        return this.directories.find { it.name == directoryName }
-    }
-
     fun getNotes(directoryName: String): ArrayList<Note> {
         val directory = directories.find { it.name == directoryName }
         return if (directory != null) {
@@ -178,7 +170,16 @@ class SecureOperation(private var pin: String): Serializable {
         val directory = directories.find { it.name == directoryName }
         if (directory != null) {
             directory.notes = notes
+            runSaveAllDirectories()
         }
+    }
+
+    //----------------------------------------------------------------------------------------------
+
+
+    //Getting data of chosen directory loaded after running runAppDecryption()
+    fun getDirectory(directoryName: String): Directory? {
+        return this.directories.find { it.name == directoryName }
     }
 
 }
