@@ -1,4 +1,5 @@
 import android.content.Context
+import com.google.gson.Gson
 import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Directory
 import com.txtlocker.Models.Note
@@ -130,6 +131,21 @@ class SecureOperation(private var pin: String): Serializable {
         directories.add(Directory(newDirectoryName, isEncrypted, exampleNotes))
     }
 
+    //TODO:Encrypting all directories to one json file
+    fun runAppCloseAction() {
+        val encryptionKey = getExtendedPin(pin)
+        val decryptedStorage = getByteArrayOfAllDirectories()
+        val encryptedStorage = encrypt(decryptedStorage, encryptionKey)
+        storage.saveByteArrayToFile("$mainStorageName.txt", encryptedStorage)
+    }
+
+    private fun getByteArrayOfAllDirectories(): ByteArray {
+        var allDirectoriesByteArray = ByteArray(0)
+        val gson = Gson()
+        allDirectoriesByteArray = gson.toJson(directories).toByteArray()
+        return allDirectoriesByteArray
+    }
+
     //----------------------------------------------------------------------------------------------
 
 
@@ -153,13 +169,6 @@ class SecureOperation(private var pin: String): Serializable {
         if (directory != null) {
             directory.notes = notes
         }
-    }
-
-    //TODO:Encrypting all directories to one json file
-    fun runAppCloseAction() {
-        val encryptionKey = getExtendedPin(pin)
-        val decryptedData = storage.getStringFromFile(mainStorageName)
-        encrypt(decryptedData.toByteArray(Charsets.UTF_8), encryptionKey)
     }
 
     fun deleteDirectory(unwantedDirectoryName: String) {

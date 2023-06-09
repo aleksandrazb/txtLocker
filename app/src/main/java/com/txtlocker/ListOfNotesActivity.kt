@@ -149,20 +149,12 @@ class ListOfNotesActivity : AppCompatActivity() {
         //Add function to add directory
         val buttonAddDirectory = headerView.findViewById<ImageButton>(R.id.buttonAddDirectory)
         buttonAddDirectory.setOnClickListener {
-            //TODO:Create new add directory method to enter new directory view
             val intent = Intent(this, AddDirectoryActivity::class.java).also {
                 it.putExtra("CURRENT_DIRECTORY", currentDirectory)
                 it.putExtra("SECURE_OPERATION", secureOperation)
             }
             startActivity(intent)
             finish()
-
-            /*val intent = Intent(this, AddDirectoryActivity::class.java).also {
-                //it.putExtra("POSITION", 0)
-                it.putExtra("FILE", this.fileToOpen)
-            }
-            startActivity(intent)
-            finish()*/
         }
 
         //Add function to delete directory
@@ -189,10 +181,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         val buttonExit = headerView.findViewById<Button>(R.id.buttonExitApp)
         buttonExit.setOnClickListener {
             secureOperation.runAppCloseAction()
-            val intent = Intent(this, MainActivity::class.java).also {
-                //it.putExtra("POSITION", 0)
-                //it.putExtra("FILE", this.fileToOpen)
-            }
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }
