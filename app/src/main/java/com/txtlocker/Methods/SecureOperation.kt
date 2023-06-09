@@ -37,7 +37,7 @@ class SecureOperation(private var pin: String): Serializable {
     private var iv: ByteArray = ByteArray(this.ivSizeBytes)
     private var directories = ArrayList<Directory>()
 
-    //TODO:Perform correct app reset encryption
+
     fun runAppFirstEncryption(secureOperation: SecureOperation) {
         val decryptedData = storage.runResetStorageUnencrypted()
         generateAndSaveNewIVForNewDirectory(mainStorageName)
@@ -80,9 +80,9 @@ class SecureOperation(private var pin: String): Serializable {
         //loadIV(mainStorageName)
         val decryptionKey = getExtendedPin(this.pin)
         val encryptedData = storage.getByteArrayFromFile("$mainStorageName.txt")
-        val decryptedData = decrypt(this.mainStorageName, encryptedData, decryptionKey) //TODO:Fix decryption failed
+        val decryptedData = decrypt(this.mainStorageName, encryptedData, decryptionKey)
 
-        this.directories = storage.getDirectoriesFromByteArray(decryptedData) //TODO:Fix decryptedData which doesn't contain directories
+        this.directories = storage.getDirectoriesFromByteArray(decryptedData)
         return this.directories.size > 0
     }
 
@@ -111,7 +111,6 @@ class SecureOperation(private var pin: String): Serializable {
         }
     }
 
-    //TODO:Get all directories function
     fun getAllDirectories(): MutableList<String> {
         var directoriesList = mutableListOf<String>()
 
@@ -119,6 +118,16 @@ class SecureOperation(private var pin: String): Serializable {
             directoriesList.add(directory.name)
         }
         return directoriesList
+    }
+
+    fun addDirectory(newDirectoryName: String, isEncrypted: Boolean) {
+        val exampleNotes = arrayListOf<Note>(
+            Note("ExampleTitle1", "ExampleNote1"),
+            Note("ExampleTitle2", "ExampleNote2"),
+            Note("ExampleTitle3", "ExampleNote3"),
+            Note("ExampleTitle4", "ExampleNote4")
+        )
+        directories.add(Directory(newDirectoryName, isEncrypted, exampleNotes))
     }
 
     //----------------------------------------------------------------------------------------------
@@ -151,16 +160,6 @@ class SecureOperation(private var pin: String): Serializable {
         val encryptionKey = getExtendedPin(pin)
         val decryptedData = storage.getStringFromFile(mainStorageName)
         encrypt(decryptedData.toByteArray(Charsets.UTF_8), encryptionKey)
-    }
-
-    fun addDirectory(newDirectoryName: String, isEncrypted: Boolean) {
-        val exampleNotes = arrayListOf<Note>(
-            Note("ExampleTitle1", "ExampleNote1"),
-            Note("ExampleTitle2", "ExampleNote2"),
-            Note("ExampleTitle3", "ExampleNote3"),
-            Note("ExampleTitle4", "ExampleNote4")
-        )
-        directories.add(Directory(newDirectoryName, isEncrypted, exampleNotes))
     }
 
     fun deleteDirectory(unwantedDirectoryName: String) {

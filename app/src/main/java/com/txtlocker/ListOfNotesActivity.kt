@@ -25,6 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Note
+import java.io.Serializable
 import kotlin.properties.Delegates
 
 //TODO:Handle secureOperation from MainActivity (and other activities)
@@ -150,8 +151,6 @@ class ListOfNotesActivity : AppCompatActivity() {
         buttonAddDirectory.setOnClickListener {
             //TODO:Create new add directory method to enter new directory view
             val intent = Intent(this, AddDirectoryActivity::class.java).also {
-                //it.putExtra("POSITION", 0)
-                //it.putExtra("FILE", this.fileToOpen)
                 it.putExtra("CURRENT_DIRECTORY", currentDirectory)
                 it.putExtra("SECURE_OPERATION", secureOperation)
             }
@@ -200,13 +199,14 @@ class ListOfNotesActivity : AppCompatActivity() {
 
     }
 
-    private fun runItem(fileToOpen: String) {
+    private fun runItem(directoryToOpen: String) {
 
-        if (this.currentDirectory != fileToOpen) {
-            Toast.makeText(applicationContext, fileToOpen, Toast.LENGTH_LONG).show()
+        if (this.currentDirectory != directoryToOpen) {
+            Toast.makeText(applicationContext, directoryToOpen, Toast.LENGTH_LONG).show()
             val intent = Intent(this, ListOfNotesActivity::class.java).also {
                 it.putExtra("POSITION", 0)
-                it.putExtra("FILE", fileToOpen)
+                it.putExtra("CURRENT_DIRECTORY", directoryToOpen)
+                it.putExtra("SECURE_OPERATION", secureOperation as Serializable)
             }
             startActivity(intent)
             finish()
