@@ -53,6 +53,7 @@ class AddDirectoryActivity : AppCompatActivity() {
         else {
             //TODO:Add function to add additionally encrypted directories
             secureOperation.addDirectory(newDirectoryName, false)
+            secureOperation.runSaveAllDirectories()
 
             val intent = Intent(this, ListOfNotesActivity::class.java).also {
                 it.putExtra("POSITION", 0)

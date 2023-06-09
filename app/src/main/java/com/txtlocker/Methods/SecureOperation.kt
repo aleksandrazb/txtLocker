@@ -132,7 +132,7 @@ class SecureOperation(private var pin: String): Serializable {
     }
 
     //TODO:Encrypting all directories to one json file
-    fun runAppCloseAction() {
+    fun runSaveAllDirectories() {
         val encryptionKey = getExtendedPin(pin)
         val decryptedStorage = getByteArrayOfAllDirectories()
         val encryptedStorage = encrypt(decryptedStorage, encryptionKey)
@@ -144,6 +144,16 @@ class SecureOperation(private var pin: String): Serializable {
         val gson = Gson()
         allDirectoriesByteArray = gson.toJson(directories).toByteArray()
         return allDirectoriesByteArray
+    }
+
+    fun deleteDirectory(unwantedDirectoryName: String): Boolean {
+        return if (directories.find { it.name == unwantedDirectoryName } != null) {
+            directories.remove(directories.find { it.name == unwantedDirectoryName })
+            runSaveAllDirectories()
+            true
+        } else {
+            false
+        }
     }
 
     //----------------------------------------------------------------------------------------------
@@ -169,10 +179,6 @@ class SecureOperation(private var pin: String): Serializable {
         if (directory != null) {
             directory.notes = notes
         }
-    }
-
-    fun deleteDirectory(unwantedDirectoryName: String) {
-        directories.remove(directories.find { it.name == unwantedDirectoryName })
     }
 
 }

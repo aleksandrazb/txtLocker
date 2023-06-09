@@ -15,18 +15,14 @@ import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
-import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Directory
 
 class DeleteDirectoryActivity : AppCompatActivity() {
-    private lateinit var fileToOpen: String
     private lateinit var currentDirectory: String
     private lateinit var secureOperation: SecureOperation
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_delete_directory)
-
-        //this.fileToOpen = intent.getSerializableExtra("FILE") as String
 
         //Get opened directory from previous activity
         this.currentDirectory = intent.getSerializableExtra("CURRENT_DIRECTORY") as String
@@ -34,13 +30,9 @@ class DeleteDirectoryActivity : AppCompatActivity() {
         //Get secureOperation from previous activity
         this.secureOperation = intent.getSerializableExtra("SECURE_OPERATION") as SecureOperation
 
-        val usedStorage = StorageOperation(this.fileToOpen)
-        usedStorage.setContext(applicationContext)
 
         //Get existing directories
-        //TODO:Create new loadListView()
-        loadListView_NEW()
-        //loadListView(usedStorage.getArrayListOfStorages(), usedStorage)
+        loadListView()
 
         val buttonBack = findViewById<Button>(R.id.buttonBack)
         buttonBack.setOnClickListener {
@@ -79,7 +71,6 @@ class DeleteDirectoryActivity : AppCompatActivity() {
             val row = layoutInflater.inflate(R.layout.list_row_delete_directory, viewGroup, false)
             val positionRowNoteTitle = row.findViewById<TextView>(R.id.textDirectoryName)
             positionRowNoteTitle.text = directories[position]
-            //positionRowNoteTitle.text = directories[position].name
 
             val deleteButton = row.findViewById<ImageButton>(R.id.buttonDeleteDirectory)
             deleteButton.setOnClickListener {
@@ -95,53 +86,70 @@ class DeleteDirectoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadListView_NEW() {
+    private fun loadListView() {
         val listViewDirectories = findViewById<ListView>(R.id.listViewDirectories)
         val directories = this.secureOperation.getAllDirectories()
         val listAdapter = ListAdapter(this, directories, this.secureOperation, object : ListAdapter.DirectoryDeleteClickListener {
             override fun onDirectoryDeleteClick(directory: Directory) {
-                if (directory.name != getString(R.string.main_note_storage)) {
-                    secureOperation.deleteDirectory(directory.name)
+                /*if (directory.name != getString(R.string.main_note_storage)) {
+                    val deleted = secureOperation.deleteDirectory(directory.name)
+                    if (deleted) {
+                        Toast.makeText(applicationContext, "Directory ${directory.name} deleted", Toast.LENGTH_LONG).show()
+                    }
+                }
+                else {
+                    Toast.makeText(applicationContext, "Main directory can't be removed", Toast.LENGTH_LONG).show()
                 }
                 (listViewDirectories.adapter as ListAdapter).notifyDataSetChanged()
+            }*/
+                if (directory.name != getString(R.string.main_note_storage))
+                {
+                    val deleted = secureOperation.deleteDirectory(directory.name)
+                    if (deleted) {
+                        Toast.makeText(
+                            applicationContext,
+                            "Directory ${directory.name} deleted",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        directories.remove(directory.name) // Remove the directory from the list
+                        (listViewDirectories.adapter as ListAdapter).notifyDataSetChanged() // Notify the adapter of the data change
+                    }
+                }
+                else
+                {
+                    Toast.makeText(
+                        applicationContext,
+                        "Main directory can't be removed",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         })
+
         listViewDirectories.adapter = listAdapter
     }
 
-    /*private fun loadListView(directories: ArrayList<Directory>, storage: StorageOperation) {
-        val listViewNotes = findViewById<ListView>(R.id.listViewDirectories)
-        val listAdapter = ListAdapter(this, directories, object : ListAdapter.DirectoryDeleteClickListener {
-            override fun onDirectoryDeleteClick(directory: Directory) {
-                storage.deleteDirectory(directory.name)
-                if (directory.name != getString(R.string.main_note_storage)) {
-                    directories.remove(directory)
-                }
-                (listViewNotes.adapter as ListAdapter).notifyDataSetChanged()
-            }
-        })
-        listViewNotes.adapter = listAdapter
-    }*/
-
     private fun setupButtonBack() {
-        val intent = Intent(this, ListOfNotesActivity::class.java).also {
-            it.putExtra("POSITION", 0)
-            it.putExtra("CURRENT_DIRECTORY", currentDirectory)
-            it.putExtra("SECURE_OPERATION", secureOperation)
+        if (currentDirectory in secureOperation.getAllDirectories())
+        {
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", 0)
+                it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+                it.putExtra("SECURE_OPERATION", secureOperation)
+            }
+            startActivity(intent)
+            finish()
         }
-        startActivity(intent)
-        finish()
-        /*val intent = Intent(this, ListOfNotesActivity::class.java).also {
-            it.putExtra("POSITION", 0)
-            it.putExtra("FILE", getString(R.string.main_note_storage))
+        else {
+            val intent = Intent(this, ListOfNotesActivity::class.java).also {
+                it.putExtra("POSITION", 0)
+                it.putExtra("CURRENT_DIRECTORY", applicationContext.getString(R.string.main_note_storage))
+                it.putExtra("SECURE_OPERATION", secureOperation)
+            }
+            startActivity(intent)
+            finish()
         }
-        startActivity(intent)
-        finish()*/
 
     }
-
-}
-
-private fun Parcelable.putExtra(s: String, secureOperation: SecureOperation) {
 
 }

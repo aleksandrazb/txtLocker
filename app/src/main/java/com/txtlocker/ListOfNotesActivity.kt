@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.DragEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -168,19 +167,12 @@ class ListOfNotesActivity : AppCompatActivity() {
             }
             startActivity(intent)
             finish()
-
-            /*val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
-                //it.putExtra("POSITION", 0)
-                it.putExtra("FILE", this.fileToOpen)
-            }
-            startActivity(intent)
-            finish()*/
         }
 
         //Add function to exit app
         val buttonExit = headerView.findViewById<Button>(R.id.buttonExitApp)
         buttonExit.setOnClickListener {
-            secureOperation.runAppCloseAction()
+            secureOperation.runSaveAllDirectories()
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
