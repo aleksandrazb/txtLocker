@@ -111,6 +111,16 @@ class SecureOperation(private var pin: String): Serializable {
         }
     }
 
+    //TODO:Get all directories function
+    fun getAllDirectories(): MutableList<String> {
+        var directoriesList = mutableListOf<String>()
+
+        for (directory: Directory in directories) {
+            directoriesList.add(directory.name)
+        }
+        return directoriesList
+    }
+
     //----------------------------------------------------------------------------------------------
 
 
@@ -141,13 +151,6 @@ class SecureOperation(private var pin: String): Serializable {
         val encryptionKey = getExtendedPin(pin)
         val decryptedData = storage.getStringFromFile(mainStorageName)
         encrypt(decryptedData.toByteArray(Charsets.UTF_8), encryptionKey)
-    }
-
-
-
-    fun getAllDirectories(): MutableList<String> {
-        var directoriesList = mutableListOf<String>()
-        return directoriesList
     }
 
     fun addDirectory(newDirectoryName: String, isEncrypted: Boolean) {

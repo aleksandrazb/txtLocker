@@ -31,18 +31,19 @@ import kotlin.properties.Delegates
 class ListOfNotesActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
     private lateinit var currentDirectory: String
+    private lateinit var secureOperation: SecureOperation
+
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: com.google.android.material.navigation.NavigationView
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
 
-    private lateinit var secureOperation: SecureOperation
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_of_notes)
 
-        ////Get filename from previous activity
-        //this.fileToOpen = intent.getSerializableExtra("FILE") as String
+        //Get position on the list from previous activity
+        this.position = intent.getSerializableExtra("POSITION") as Int
 
         //Get opened directory from previous activity
         this.currentDirectory = intent.getSerializableExtra("CURRENT_DIRECTORY") as String
@@ -51,13 +52,12 @@ class ListOfNotesActivity : AppCompatActivity() {
         this.secureOperation = intent.getSerializableExtra("SECURE_OPERATION") as SecureOperation
         secureOperation.setContext(applicationContext)
 
-        //val usedStorage = StorageOperation(applicationContext, fileToOpen)
-
         //Create navigation menu for directories
         this.drawerLayout = findViewById(R.id.drawerLayout)
         this.navigationView = findViewById(R.id.navigation_view)
         this.toolbar = findViewById(R.id.toolbar)
         this.toolbar.title = currentDirectory
+
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar, R.string.open, R.string.close)
@@ -65,8 +65,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         toggle.syncState()
 
         //TODO:Create new version of setupNavigationMenu()
-        //setupNavigationMenu(usedStorage)
-        setupNavigationMenu_NEW()
+        setupNavigationMenu()
 
         ////Get notes from storage
         //val notes = usedStorage.getNotesFromFile()
@@ -116,7 +115,7 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupNavigationMenu_NEW() {
+    private fun setupNavigationMenu() {
         val directories = secureOperation.getAllDirectories()
 
         //Retrieve the reference to the navigation menu
@@ -191,72 +190,6 @@ class ListOfNotesActivity : AppCompatActivity() {
         val buttonExit = headerView.findViewById<Button>(R.id.buttonExitApp)
         buttonExit.setOnClickListener {
             secureOperation.runAppCloseAction()
-            val intent = Intent(this, MainActivity::class.java).also {
-                //it.putExtra("POSITION", 0)
-                //it.putExtra("FILE", this.fileToOpen)
-            }
-            startActivity(intent)
-            finish()
-        }
-
-    }
-
-    private fun setupNavigationMenu(storage: StorageOperation) {
-        val storages = storage.getListOfStorages()
-
-        //Retrieve the reference to the navigation menu
-        val menu = this.navigationView.menu
-
-        //Clear existing menu items
-        menu.clear()
-
-        //Add menu items for each JSON file
-        storages.forEachIndexed { index, file ->
-            val menuItem = menu.add(file)
-            menuItem.title = file // Set your own icon
-        }
-
-        //Add function to open each directory
-        for (i in 0 until menu.size()) {
-            val menuItem = menu.getItem(i)
-            val itemName = menuItem.title.toString()
-
-            menuItem.setOnMenuItemClickListener {
-                runItem(itemName)
-                this.drawerLayout.closeDrawer(GravityCompat.START)
-                true
-            }
-        }
-
-        val navigationView: NavigationView = findViewById(R.id.navigation_view)
-        val headerView = navigationView.getHeaderView(0) // Get the first (and usually only) header view
-
-        //Add function to add directory
-        val buttonAddDirectory = headerView.findViewById<ImageButton>(R.id.buttonAddDirectory)
-        buttonAddDirectory.setOnClickListener {
-            val intent = Intent(this, AddDirectoryActivity::class.java).also {
-                //it.putExtra("POSITION", 0)
-                it.putExtra("FILE", currentDirectory)
-            }
-            startActivity(intent)
-            finish()
-        }
-
-        //Add function to delete directory
-
-        val buttonDeleteDirectory = headerView.findViewById<ImageButton>(R.id.buttonDeleteDirectory)
-        buttonDeleteDirectory.setOnClickListener {
-            val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
-                //it.putExtra("POSITION", 0)
-                it.putExtra("FILE", currentDirectory)
-            }
-            startActivity(intent)
-            finish()
-        }
-
-        //Add function to exit app
-        val buttonExit = headerView.findViewById<Button>(R.id.buttonExitApp)
-        buttonExit.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).also {
                 //it.putExtra("POSITION", 0)
                 //it.putExtra("FILE", this.fileToOpen)
@@ -412,9 +345,5 @@ class ListOfNotesActivity : AppCompatActivity() {
         finish()
 
     }
-
-}
-
-private fun Parcelable.putExtra(s: String, secureOperation: SecureOperation) {
 
 }
