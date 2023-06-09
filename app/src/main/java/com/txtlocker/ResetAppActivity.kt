@@ -23,7 +23,8 @@ class ResetAppActivity : AppCompatActivity() {
         val edittext_newPin = findViewById<EditText>(R.id.editTextNewPin)
         val button_resetAppFinalize = findViewById<Button>(R.id.buttonResetAppFinalize)
         button_resetAppFinalize.setOnClickListener {
-            var secureOperation = SecureOperation(applicationContext, edittext_newPin.text.toString())
+            var secureOperation = SecureOperation(edittext_newPin.text.toString())
+            secureOperation.setContext(applicationContext)
             secureOperation.runAppFirstEncryption(secureOperation)
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)

@@ -50,6 +50,7 @@ class ListOfNotesActivity : AppCompatActivity() {
 
         //Get secureOperation from previous activity
         this.secureOperation = intent.getSerializableExtra("SECURE_OPERATION") as SecureOperation
+        secureOperation.setContext(applicationContext)
 
         //val usedStorage = StorageOperation(applicationContext, fileToOpen)
 

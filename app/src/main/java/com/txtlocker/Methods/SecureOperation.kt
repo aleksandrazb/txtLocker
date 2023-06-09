@@ -1,22 +1,30 @@
 import android.content.Context
-import android.icu.text.CaseMap.Title
-import android.util.Base64
 import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Directory
 import com.txtlocker.Models.Note
 import com.txtlocker.R
 import java.io.File
+import java.security.MessageDigest
 import java.security.SecureRandom
-import java.security.spec.KeySpec
 import javax.crypto.Cipher
-import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
-class SecureOperation(private var applicationContext: Context, private var pin: String) {
+import java.io.Serializable
+
+//class SecureOperation(@Transient private var applicationContext: Context, private var pin: String): Serializable {
+class SecureOperation(private var pin: String): Serializable {
 
     private val salt: ByteArray
+
+    @Transient
+    private var applicationContext: Context? = null
+
+
+    fun setContext(context: Context) {
+        this.applicationContext = context
+        storage.setContext(applicationContext!!)
+    }
 
     init {
         val secureRandom = SecureRandom()
@@ -25,8 +33,8 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
         salt = saltBytes
     }
 
-    private val mainStorageName = this.applicationContext.getString(R.string.main_note_storage)
-    private val storage = StorageOperation(this.applicationContext, this.mainStorageName)
+    private val mainStorageName = "Main storage"
+    private val storage: StorageOperation = StorageOperation(this.mainStorageName)
     private val cipherTransformation = "AES/GCM/NoPadding"
     private val cipherAlgorithm = "AES"
     private val keySizeBits = 128
@@ -41,7 +49,7 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
         val encryptedData = storage.getByteArrayFromFile("$mainStorageName.json")
         val decryptedData = decrypt(this.mainStorageName, encryptedData, decryptionKey)
 
-        this.directories = storage.getDirectoriesFromString(decryptedData)
+        this.directories = storage.getDirectoriesFromString(decryptedData) //TODO:Fix decryptedData which doesn't contain directories
         return this.directories.size != 0
 
     }
@@ -114,14 +122,17 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
     }
 
     private fun generateAESKeyFromPin(pin: String): ByteArray {
-        val iterationCount = 10000 // Number of iterations for key derivation
+        /* val iterationCount = 10000 // Number of iterations for key derivation
         val keyLengthBits = 256 // Desired key length in bits
 
         val keySpec: KeySpec = PBEKeySpec(pin.toCharArray(), salt, iterationCount, keyLengthBits)
         val secretKeyFactory: SecretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512")
         val secretKey = secretKeyFactory.generateSecret(keySpec)
-
-        return secretKey.encoded
+        */
+        val messageDigest = MessageDigest.getInstance("SHA-256")
+        val pinBytes = pin.toByteArray(Charsets.UTF_8)
+        val pom = messageDigest.digest(pinBytes)
+        return messageDigest.digest(pom)
     }
 
     fun encrypt(directoryName: String, decryptedData: String, encryptionKey: ByteArray) {
@@ -139,7 +150,8 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
     }
 
     private fun loadIV(directoryName: String) {
-        val storage = StorageOperation(applicationContext, mainStorageName)
+        val storage = StorageOperation(mainStorageName)
+        storage.setContext(applicationContext!!)
         iv = storage.getByteArrayFromFile("$directoryName.iv.txt")
     }
 
@@ -158,8 +170,8 @@ class SecureOperation(private var applicationContext: Context, private var pin: 
             val keySpec = SecretKeySpec(decryptionKey, cipherAlgorithm)
             val ivParameterSpec = GCMParameterSpec(keySizeBits, iv)
             cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec)
-            val encryptedBytes = Base64.decode(encryptedData, Base64.DEFAULT)
-            val decryptedBytes = cipher.doFinal(encryptedBytes)
+            //val encryptedBytes = Base64.decode(encryptedData, Base64.DEFAULT)
+            val decryptedBytes = cipher.doFinal(encryptedData)
             return String(decryptedBytes, Charsets.UTF_8)
         } catch (ex: Exception) {
             ex.printStackTrace()

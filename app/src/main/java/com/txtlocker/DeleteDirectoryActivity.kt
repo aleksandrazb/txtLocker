@@ -34,7 +34,8 @@ class DeleteDirectoryActivity : AppCompatActivity() {
         //Get secureOperation from previous activity
         this.secureOperation = intent.getSerializableExtra("SECURE_OPERATION") as SecureOperation
 
-        val usedStorage = StorageOperation(applicationContext, this.fileToOpen)
+        val usedStorage = StorageOperation(this.fileToOpen)
+        usedStorage.setContext(applicationContext)
 
         //Get existing directories
         //TODO:Create new loadListView()

@@ -4,11 +4,11 @@ import SecureOperation
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcelable
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.txtlocker.Methods.StorageOperation
+import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,12 +22,13 @@ class MainActivity : AppCompatActivity() {
 
         button_submit.setOnClickListener {
             //actionGivePermission(edittext_pin.text.toString())
-            val secureOperation = SecureOperation(applicationContext ,edittext_pin.text.toString())
-            if (secureOperation.runAppDecryption()) { //TODO:!!!!!Decryption failed: error:1e000065:Cipher functions:OPENSSL_internal:BAD_DECRYPT
+            val secureOperation = SecureOperation(edittext_pin.text.toString())
+            secureOperation.setContext(applicationContext)
+            if (secureOperation.runAppDecryption()) { //FIXED!!!!!Decryption failed: error:1e000065:Cipher functions:OPENSSL_internal:BAD_DECRYPT
                 val intent = Intent(this, ListOfNotesActivity::class.java).also {
                     it.putExtra("POSITION", 0)
                     it.putExtra("CURRENT_DIRECTORY", currentDirectory)
-                    it.putExtra("SECURE_OPERATION", secureOperation)
+                    it.putExtra("SECURE_OPERATION", secureOperation as Serializable)
                 }
                 startActivity(intent)
                 finish()
@@ -59,7 +60,8 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Unlocked", Toast.LENGTH_LONG).show()
             finish()
             val fileToOpen = getString(R.string.main_note_storage)
-            val storage = StorageOperation(applicationContext, fileToOpen)
+            val storage = StorageOperation(fileToOpen)
+            storage.setContext(applicationContext)
             storage.runCheckIfNotesStorageExist()
 
             val intent = Intent(this, ListOfNotesActivity::class.java).also {
@@ -75,6 +77,3 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-private fun Parcelable.putExtra(s: String, secureOperation: SecureOperation) {
-
-}

@@ -16,16 +16,26 @@ import java.io.FileWriter
 import java.io.IOException
 import java.lang.reflect.Type
 
-class StorageOperation(private var applicationContext: Context, private var fileName: String) {
+class StorageOperation(private var fileName: String) {
 
-    private val directory = applicationContext.filesDir
+    @Transient
+    private var applicationContext: Context? = null
+    private var directory: File? = null
+    private var mainNoteStorage: String? = null
+
+    fun setContext(context: Context) {
+        this.applicationContext = context
+        this.directory = applicationContext!!.filesDir
+        this.mainNoteStorage = applicationContext!!.getString(R.string.main_note_storage)
+    }
+
+
     private val fileFullName = "$fileName.json"
     private val file = File(directory, fileFullName)
-    private val mainNoteStorage: String = applicationContext.getString(R.string.main_note_storage)
 
     fun getListOfStorages(): MutableList<String> {
         val jsonFiles =
-            directory.listFiles { _, name -> name.endsWith(".json") }
+            directory!!.listFiles { _, name -> name.endsWith(".json") }
 
         val listOfStorages: MutableList<String> = mutableListOf()
 
@@ -39,7 +49,7 @@ class StorageOperation(private var applicationContext: Context, private var file
     fun getArrayListOfStorages(): ArrayList<Directory> {
         var arrayListOfDirectories: ArrayList<Directory> = ArrayList()
         val jsonFiles =
-            directory.listFiles { _, name -> name.endsWith(".json") }
+            directory!!.listFiles { _, name -> name.endsWith(".json") }
 
         jsonFiles?.forEachIndexed { index, file ->
             //arrayListOfDirectories.add(Directory(file.nameWithoutExtension.toString(), , ArrayList<Directory>()))
@@ -157,26 +167,6 @@ class StorageOperation(private var applicationContext: Context, private var file
     }
 
     fun saveByteArrayToFile(fileName: String, data: ByteArray) {
-        /*val newFileFullName = fileName
-        val file = File(directory, newFileFullName)
-
-        if(!file.exists()) {
-            try {
-                file.createNewFile()
-
-                try {
-                    val fileWriter = FileWriter(file)
-                    fileWriter.write(data.toString())
-                    fileWriter.close()
-                }
-                catch (e: IOException) {
-                    e.printStackTrace()
-                }
-            }
-            catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }*/
         val file = File(directory, fileName)
         try {
             file.createNewFile()
@@ -269,16 +259,21 @@ class StorageOperation(private var applicationContext: Context, private var file
             Note("ExampleTitle3", "ExampleNote3"),
             Note("ExampleTitle4", "ExampleNote4")
         )
+        val directories = arrayListOf<Directory>(
+            Directory(mainNoteStorage!!, false, newNotes)
+        )
+        val gson = Gson()
+        val json = gson.toJson(directories)
 
-        if(!file.exists()) {
+        //TODO:saveByteArrayToFile()
+        saveByteArrayToFile(mainNoteStorage!!, json.toByteArray())
+
+        /*if(!file.exists()) {
             try {
-                val directories = arrayListOf<Directory>(
-                    Directory(mainNoteStorage, false, newNotes)
-                )
+
 
                 file.createNewFile()
-                val gson = Gson()
-                val json = gson.toJson(directories)
+
 
                 try {
                     val fileWriter = FileWriter(file)
@@ -292,7 +287,7 @@ class StorageOperation(private var applicationContext: Context, private var file
             catch (e: IOException) {
                 e.printStackTrace()
             }
-        }
+        }*/
 
     }
 
