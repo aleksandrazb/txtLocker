@@ -1,8 +1,10 @@
 import android.content.Context
+import android.os.Environment
 import com.google.gson.Gson
 import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Directory
 import com.txtlocker.Models.Note
+import java.io.IOException
 import java.security.MessageDigest
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -54,6 +56,13 @@ class SecureOperation(private var pin: String): Serializable {
         val secureRandom = SecureRandom()
         secureRandom.nextBytes(iv)
         storage.saveByteArrayToFile("$directoryName.iv.txt", iv)
+    }
+
+    private fun generateAndSaveNewIVForExportedDirectory(path: String, directoryName: String) {
+        iv = ByteArray(ivSizeBytes)
+        val secureRandom = SecureRandom()
+        secureRandom.nextBytes(iv)
+        storage.saveByteArrayToExternalFile("$path/$directoryName.export.iv.txt", iv)
     }
 
     //Extend the pin to 256 ByteArray needed for AES
@@ -140,10 +149,8 @@ class SecureOperation(private var pin: String): Serializable {
     }
 
     private fun getByteArrayOfAllDirectories(): ByteArray {
-        var allDirectoriesByteArray = ByteArray(0)
         val gson = Gson()
-        allDirectoriesByteArray = gson.toJson(directories).toByteArray()
-        return allDirectoriesByteArray
+        return gson.toJson(directories).toByteArray()
     }
 
     fun deleteDirectory(unwantedDirectoryName: String): Boolean {
@@ -172,6 +179,30 @@ class SecureOperation(private var pin: String): Serializable {
             directory.notes = notes
             runSaveAllDirectories()
         }
+    }
+
+    fun saveExport(directoryName: String, notes: ArrayList<Note>): Boolean {
+        val directories = arrayListOf<Directory>(
+            Directory(directoryName, false, notes)
+        )
+        val documentsPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).absolutePath
+
+        try {
+            val gson = Gson()
+            var exportedData = gson.toJson(directories).toByteArray()
+
+            if (pin != "") {
+                val encryptionKey = getExtendedPin(pin)
+                generateAndSaveNewIVForExportedDirectory(documentsPath, "$directoryName.export")
+                exportedData = encrypt(exportedData, encryptionKey)
+            }
+
+            return storage.saveByteArrayToExternalFile("$documentsPath/$directoryName.export.txt", exportedData)
+        }
+        catch (e: IOException) {
+            return false
+        }
+
     }
 
     //----------------------------------------------------------------------------------------------

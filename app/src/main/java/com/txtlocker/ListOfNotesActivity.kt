@@ -22,7 +22,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
-import com.txtlocker.Methods.StorageOperation
 import com.txtlocker.Models.Note
 import java.io.Serializable
 import kotlin.properties.Delegates
@@ -151,11 +150,21 @@ class ListOfNotesActivity : AppCompatActivity() {
         }
 
         //Add function to delete directory
-
         val buttonDeleteDirectory = headerView.findViewById<ImageButton>(R.id.buttonDeleteDirectory)
         buttonDeleteDirectory.setOnClickListener {
-            //TODO:Create new delete directory method to enter new directory view
             val intent = Intent(this, DeleteDirectoryActivity::class.java).also {
+                it.putExtra("CURRENT_DIRECTORY", currentDirectory)
+                it.putExtra("SECURE_OPERATION", secureOperation)
+            }
+            startActivity(intent)
+            finish()
+        }
+
+        //Add function to go to export directory menu
+        val buttonExport = headerView.findViewById<ImageButton>(R.id.buttonExport)
+        buttonExport.setOnClickListener {
+            //TODO:Create export directory view link
+            val intent = Intent(this, ExportMenuActivity::class.java).also {
                 it.putExtra("CURRENT_DIRECTORY", currentDirectory)
                 it.putExtra("SECURE_OPERATION", secureOperation)
             }

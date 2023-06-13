@@ -118,6 +118,27 @@ class StorageOperation(private var fileName: String): Serializable {
         return ByteArray(0)
     }
 
+    fun saveByteArrayToExternalFile(fileFullPath: String, data: ByteArray): Boolean {
+        val file = File(fileFullPath)
+        try {
+            file.createNewFile()
+
+            try {
+                val outputStream = FileOutputStream(file)
+                outputStream.write(data)
+                outputStream.close()
+                return true
+            }
+            catch (e: IOException) {
+                return false
+            }
+        }
+        catch (e: IOException) {
+                e.printStackTrace()
+                return false
+        }
+    }
+
     fun getDirectoriesFromByteArray(byteArray: ByteArray): ArrayList<Directory> {
         return loadDirectoriesFromByteArray(byteArray)
     }

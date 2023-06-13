@@ -319,7 +319,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/create_new_folder/baseline_create_new_folder_24.xml" />
+                                      <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/drive_folder_upload/baseline_drive_folder_upload_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -329,7 +329,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="baseline_add_directory" />
+                            <entry key="outputName" value="baseline_drive_folder_upload_24" />
                             <entry key="sourceFile" value="C:\Users\Ola\Desktop\IT\GitHub\txtLocker" />
                           </map>
                         </option>

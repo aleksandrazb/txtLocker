@@ -22,4 +22,9 @@
     <string name="directory_name">Directory name</string>
     <string name="menu">Menu</string>
     <string name="dark_mode">Dark Mode</string>
+    <string name="exporting">Export directory</string>
+    <string name="importing">Import directory</string>
+    <string name="choose_directory">Choose directory</string>
+    <string name="enter_encrypting_pin">Enter encrypting PIN</string>
+    <string name="enter_decrypting_pin">Enter decrypting PIN</string>
 </resources>
