@@ -107,6 +107,10 @@ class SecureOperation(private var pin: String): Serializable {
         return executeDecryption(encryptedData, decryptionKey)
     }
 
+    private fun decryptImported(encryptedData: ByteArray, decryptionKey: ByteArray, iv: ByteArray): ByteArray {
+        return executeDecryptionOnImported(encryptedData, decryptionKey, iv)
+    }
+
     private fun executeDecryption(encryptedData: ByteArray, decryptionKey: ByteArray): ByteArray {
         try {
             val cipher = Cipher.getInstance(cipherTransformation)
@@ -117,6 +121,19 @@ class SecureOperation(private var pin: String): Serializable {
         } catch (ex: Exception) {
             ex.printStackTrace()
             //throw RuntimeException("Decryption failed: ${ex.message}")
+            return ByteArray(0)
+        }
+    }
+
+    private fun executeDecryptionOnImported(encryptedData: ByteArray, decryptionKey: ByteArray, iv: ByteArray): ByteArray {
+        try {
+            val cipher = Cipher.getInstance(cipherTransformation)
+            val keySpec = SecretKeySpec(decryptionKey, cipherAlgorithm)
+            val ivParameterSpec = GCMParameterSpec(keySizeBits, iv)
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParameterSpec)
+            return cipher.doFinal(encryptedData)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
             return ByteArray(0)
         }
     }
@@ -140,7 +157,7 @@ class SecureOperation(private var pin: String): Serializable {
         directories.add(Directory(newDirectoryName, isEncrypted, exampleNotes))
     }
 
-    //TODO:Encrypting all directories to one json file
+    //Encrypting all directories to one json file
     fun runSaveAllDirectories() {
         val encryptionKey = getExtendedPin(pin)
         val decryptedStorage = getByteArrayOfAllDirectories()
@@ -203,6 +220,37 @@ class SecureOperation(private var pin: String): Serializable {
             return false
         }
 
+    }
+
+    fun importDirectory(fileNameWithExtension: String, pinImported: String): Boolean {
+        val documentsPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).absolutePath
+        val importedData = storage.getByteArrayFromExternalFile("$documentsPath/$fileNameWithExtension")
+        if (importedData.isNotEmpty()) {
+            val importedDirectory = storage.getDirectoriesFromByteArray(importedData)
+            if (importedDirectory.isEmpty()) {
+                val decryptionKey = getExtendedPin(pinImported)
+                val ivImported = storage.getByteArrayFromExternalFile("$documentsPath/${fileNameWithExtension.dropLast(3)}export.iv.txt")
+                val decryptedData = decryptImported(importedData, decryptionKey, ivImported)
+                val imported = storage.getDirectoriesFromByteArray(decryptedData)
+                return if (decryptedData.isNotEmpty()) {
+                    for (directory in imported) {
+                        directories.add(directory)
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            else {
+                for (directory in importedDirectory) {
+                    directories.add(directory)
+                }
+                return true
+            }
+        }
+        else {
+            return false
+        }
     }
 
     //----------------------------------------------------------------------------------------------

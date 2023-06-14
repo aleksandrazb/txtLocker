@@ -118,6 +118,25 @@ class StorageOperation(private var fileName: String): Serializable {
         return ByteArray(0)
     }
 
+    fun getByteArrayFromExternalFile(fileFullPath: String): ByteArray {
+        val file = File(fileFullPath)
+        val byteArraySize = file.length().toInt()
+
+        if (file.exists()) {
+            try {
+                val inputStream = FileInputStream(file)
+                val byteArray = ByteArray(byteArraySize)
+                val bytesRead = inputStream.read(byteArray)
+                inputStream.close()
+                // If the number of bytes read is less than the specified size, create a new array with the actual size
+                return if (bytesRead < byteArraySize) byteArray.copyOf(bytesRead) else byteArray
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return ByteArray(0)
+    }
+
     fun saveByteArrayToExternalFile(fileFullPath: String, data: ByteArray): Boolean {
         val file = File(fileFullPath)
         try {
@@ -173,7 +192,6 @@ class StorageOperation(private var fileName: String): Serializable {
         return listOfStorages
     }
 
-    //TODO:Replace this function with getDirectoriesFromString(string: String)
     fun getArrayListOfStorages(): ArrayList<Directory> {
         var arrayListOfDirectories: ArrayList<Directory> = ArrayList()
         val jsonFiles =

@@ -26,7 +26,7 @@ import com.txtlocker.Models.Note
 import java.io.Serializable
 import kotlin.properties.Delegates
 
-//TODO:Handle secureOperation from MainActivity (and other activities)
+
 class ListOfNotesActivity : AppCompatActivity() {
     private var position by Delegates.notNull<Int>()
     private lateinit var currentDirectory: String
@@ -163,7 +163,6 @@ class ListOfNotesActivity : AppCompatActivity() {
         //Add function to go to export directory menu
         val buttonExport = headerView.findViewById<ImageButton>(R.id.buttonExport)
         buttonExport.setOnClickListener {
-            //TODO:Create export directory view link
             val intent = Intent(this, ExportMenuActivity::class.java).also {
                 it.putExtra("CURRENT_DIRECTORY", currentDirectory)
                 it.putExtra("SECURE_OPERATION", secureOperation)

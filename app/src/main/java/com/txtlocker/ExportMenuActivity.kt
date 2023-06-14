@@ -59,7 +59,8 @@ class ExportMenuActivity : AppCompatActivity() {
     }
 
     private fun setupButtonImport() {
-        val intent = Intent(this, ListOfNotesActivity::class.java).also {
+        //TODO:Create import functionality
+        val intent = Intent(this, ImportDirectoryActivity::class.java).also {
             it.putExtra("CURRENT_DIRECTORY", currentDirectory)
             it.putExtra("SECURE_OPERATION", secureOperation)
         }
